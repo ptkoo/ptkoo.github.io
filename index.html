@@ -524,62 +524,72 @@
         </div>
     </div>
 
-<script>
-    $(document).ready(function(){
-        $("#album").turn({
-            width: "90vw",
-            height: "90vh",
-            autoCenter: true,
-            duration: 1500,
-            acceleration: true,
-            gradients: true,
-            elevation: 50,
-            when: {
-                turning: function(event, page, view) {
-                    if (page === 1 || page === $("#album").turn("pages")) {
-                        $("#album").turn("display", "single");
-                    } else {
-                        $("#album").turn("display", "double");
+    <script>
+        $(document).ready(function(){
+            let transitionInterval;
+            
+            $("#album").turn({
+                width: "90vw",
+                height: "90vh",
+                autoCenter: true,
+                duration: 1500,
+                acceleration: true,
+                gradients: true,
+                elevation: 50,
+                when: {
+                    turning: function(event, page, view) {
+                        if (page === 1 || page === $("#album").turn("pages")) {
+                            $("#album").turn("display", "single");
+                        } else {
+                            $("#album").turn("display", "double");
+                        }
                     }
                 }
+            });
+    
+            function startTransition() {
+                transitionInterval = setInterval(function() {
+                    if ($("#album").turn("page") < $("#album").turn("pages")) {
+                        $("#album").turn("next");
+                    } else {
+                        $("#album").turn("page", 1);
+                    }
+                }, 7000);
             }
-        });
-
-        setInterval(function() {
-            if ($("#album").turn("page") < $("#album").turn("pages")) {
-                $("#album").turn("next");
-            } else {
-                $("#album").turn("page", 1);
+    
+            function stopTransition() {
+                clearInterval(transitionInterval);
             }
-        }, 7000);
-
-        $('#album').click(function() {
-            $(this).turn("next");
+    
+            $('#album').click(function() {
+                $(this).turn("next");
+            });
+    
+            // Audio functionality with transition control
+            const bgMusic = document.getElementById('bgMusic');
+            const playButton = document.getElementById('playAudio');
+            let isPlaying = false;
+    
+            playButton.addEventListener('click', function() {
+                if (!isPlaying) {
+                    bgMusic.play()
+                        .then(() => {
+                            isPlaying = true;
+                            playButton.textContent = 'Pause Music';
+                            startTransition(); // Start transitions when music plays
+                        })
+                        .catch(error => {
+                            console.error('Error playing audio:', error);
+                        });
+                } else {
+                    bgMusic.pause();
+                    isPlaying = false;
+                    playButton.textContent = 'Play Music';
+                    stopTransition(); // Stop transitions when music is paused
+                }
+            });
         });
-
-        // Add audio functionality
-        const bgMusic = document.getElementById('bgMusic');
-        const playButton = document.getElementById('playAudio');
-        let isPlaying = false;
-
-        playButton.addEventListener('click', function() {
-            if (!isPlaying) {
-                bgMusic.play()
-                    .then(() => {
-                        isPlaying = true;
-                        playButton.textContent = 'Pause Music';
-                    })
-                    .catch(error => {
-                        console.error('Error playing audio:', error);
-                    });
-            } else {
-                bgMusic.pause();
-                isPlaying = false;
-                playButton.textContent = 'Play Music';
-            }
-        });
-    });
-</script>
+    </script>
 
 </body>
 </html>
