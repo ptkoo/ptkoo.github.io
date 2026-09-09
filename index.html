@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Paing Thet Ko · Robotics Software Engineer</title>
-<meta name="description" content="Paing Thet Ko, robotics software engineer in Bangkok. Reinforcement-learning locomotion, real-time control, state estimation. Python, C++, Rust, ROS 2, Isaac Sim, MuJoCo.">
+<meta name="description" content="Paing Thet Ko, robotics software engineer in Bangkok. Reinforcement-learning and CPG locomotion, real-time control, state estimation. Python, C++, Rust, ROS 2, Isaac Sim, MuJoCo.">
 <meta property="og:title" content="Paing Thet Ko · Robotics Software Engineer">
 <meta property="og:description" content="Building modern, reliable robotics systems from perception to control.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ptkoo.github.io/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d10'/%3E%3Cpath d='M9 23 L13 9 L19 21 L23 9' fill='none' stroke='%23ffb454' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23fbfbf9'/%3E%3Cpath d='M9 23 L13 9 L19 21 L23 9' fill='none' stroke='%23b8600a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -24,7 +24,6 @@
       <li><a href="#experience">Experience</a></li>
       <li><a href="#skills">Skills</a></li>
       <li><a href="#education">Education</a></li>
-      <li><a href="#recognition">Recognition</a></li>
       <li><a class="cta" href="mailto:paingthetko2000@gmail.com">Email</a></li>
     </ul>
   </div>
@@ -35,21 +34,17 @@
     <div>
       <div class="eyebrow">Robotics Software Engineer · Bangkok</div>
       <h1>Paing<br>Thet <em>Ko</em></h1>
-      <p class="lede">Building <b>modern, reliable robotics systems</b> that solve real problems, from perception to control, for smarter machines.</p>
+      <p class="lede">Building <b>modern, reliable robotics systems</b> from perception to control, for smarter machines.</p>
       <div class="actions">
         <a class="btn primary" href="mailto:paingthetko2000@gmail.com">Email me</a>
         <a class="btn" href="https://www.linkedin.com/in/paing-thet-ko" target="_blank" rel="noopener">LinkedIn</a>
         <a class="btn" href="https://github.com/ptkoo" target="_blank" rel="noopener">GitHub</a>
       </div>
-      <div class="chips">
-        <span class="chip">RL locomotion</span><span class="chip">CPG gaits</span><span class="chip">real-time control</span><span class="chip">state estimation</span><span class="chip">ROS 2 · CAN</span><span class="chip">Isaac · MuJoCo</span>
-      </div>
     </div>
-
     <div class="rig" aria-label="Animated planar quadruped walking, driven by a live inverse-kinematics gait generator">
       <canvas id="rig" width="640" height="440"></canvas>
       <div class="hud"><div>gait <b id="hud-gait">static walk</b></div><div>phase <b id="hud-phase">0.00</b></div><div>v<sub>x</sub> <b id="hud-v">0.00</b> m/s</div></div>
-      <div class="tag">2-link IK · 4 legs · 60 Hz</div>
+      <div class="tag">2-link IK · 4 legs</div>
       <div class="foot"><span>contact <b id="hud-contact">■ ■ ■ ■</b></span><span>click to change gait</span></div>
     </div>
   </div>
@@ -57,107 +52,67 @@
 
 <section id="experience">
   <div class="wrap">
-    <div class="eyebrow">Experience</div>
-    <h2>Two years of shipping robots.</h2>
-
-    <div class="xp reveal">
-      <div class="xp-head">
-        <div><h3>General Magic (Thailand) Co., Ltd.</h3><div class="role">Robotics Software Engineer</div></div>
-        <div class="when">Dec 2024 — Present</div>
-      </div>
-      <div class="proj">
-        <div class="proj-t">Humanoid bipedal legs with a natural walking gait</div>
-        <ul>
-          <li>Trained walking, one-legged and two-legged swing policies with PPO and teacher-student distillation in Isaac Lab. Verified sim-to-sim in MuJoCo, then on hardware.</li>
-          <li>Zero-shot transfer through actuator friction models, tuned sensor physics and domain randomisation.</li>
-          <li>Soft real-time ROS 2 control loop running the policies on the robot. C++ CAN libraries for Cubemars actuators and STM32 links at 2000 Hz.</li>
-        </ul>
-      </div>
-      <div class="proj">
-        <div class="proj-t">Agentic control architecture for bio-inspired feline robots</div>
-        <ul>
-          <li>High-brain / low-brain topology: LLM task planning above, high-frequency local control on edge devices below.</li>
-          <li>Multimodal pipelines linking vision, voice and locomotion. RL policies for cat behaviours.</li>
-          <li>Central pattern generator (CPG) locomotion: coupled phase oscillators as the gait clock, contact reflexes and posture loops closed around them, validated in MuJoCo.</li>
-          <li>Depth-to-costmap navigation and visual-inertial state estimation from RGB-D and IMU.</li>
-        </ul>
+    <span class="eyebrow">Experience</span>
+    <div class="row reveal">
+      <div class="when">Dec 2024 — Present</div>
+      <div>
+        <h3>General Magic (Thailand)</h3>
+        <div class="role">Robotics Software Engineer</div>
+        <p><b>Humanoid bipedal legs.</b> RL walking policies trained in Isaac Lab, deployed zero-shot on hardware through a real-time ROS 2 control loop and 2000 Hz CAN.</p>
+        <p><b>Bio-inspired feline robots.</b> CPG gait generation, agentic high-brain / low-brain control, visual-inertial state estimation.</p>
       </div>
     </div>
-
-    <div class="xp reveal">
-      <div class="xp-head">
-        <div><h3>Siam NSK Steering Systems Co., Ltd.</h3><div class="role">Assistant Engineer</div></div>
-        <div class="when">Apr — Jun 2024</div>
+    <div class="row reveal">
+      <div class="when">Apr — Jun 2024</div>
+      <div>
+        <h3>Siam NSK Steering Systems</h3>
+        <div class="role">Assistant Engineer</div>
+        <p>Fanuc and Dobot automation on the production line.</p>
       </div>
-      <ul>
-        <li>Programmed Fanuc and Dobot robots on the manufacturing line and optimised automation processes.</li>
-        <li>Built the factory-wide maintenance control system.</li>
-      </ul>
     </div>
-
-    <div class="xp reveal">
-      <div class="xp-head">
-        <div><h3>Ko Tine Thin</h3><div class="role">Junior Web Developer · non-profit learning platform</div></div>
-        <div class="when">Feb — Jun 2022</div>
+    <div class="row reveal">
+      <div class="when">Feb — Jun 2022</div>
+      <div>
+        <h3>Ko Tine Thin</h3>
+        <div class="role">Junior Web Developer</div>
+        <p>Backend APIs in TypeScript and Postgres for a non-profit learning platform.</p>
       </div>
-      <ul>
-        <li>Database design and full API implementation. TypeScript, Express, TypeORM, Postgres.</li>
-      </ul>
     </div>
   </div>
 </section>
 
 <section id="skills">
   <div class="wrap">
-    <div class="eyebrow">Skills</div>
-    <h2>Toolbox.</h2>
+    <span class="eyebrow">Skills</span>
     <div class="skills reveal">
       <div class="skill"><h3>Languages</h3><ul><li>Python</li><li>Modern C++</li><li>Rust</li></ul></div>
-      <div class="skill"><h3>Middleware</h3><ul><li>ROS 2</li><li>SocketCAN</li><li>Multi-threaded real-time control</li></ul></div>
-      <div class="skill"><h3>Simulation</h3><ul><li>NVIDIA Isaac Sim / Lab</li><li>MuJoCo (MJCF)</li><li>Gazebo, RViz</li></ul></div>
-      <div class="skill"><h3>Control</h3><ul><li>Deep reinforcement learning</li><li>CPG gait generation</li><li>State estimation, EKF, VIO</li><li>PID / PD torque control</li></ul></div>
+      <div class="skill"><h3>Control</h3><ul><li>Deep reinforcement learning</li><li>CPG gait generation</li><li>State estimation, EKF, VIO</li></ul></div>
+      <div class="skill"><h3>Simulation</h3><ul><li>Isaac Sim / Lab</li><li>MuJoCo</li><li>Gazebo, RViz</li></ul></div>
+      <div class="skill"><h3>Systems</h3><ul><li>ROS 2</li><li>SocketCAN</li><li>Real-time multithreading</li></ul></div>
     </div>
   </div>
 </section>
 
 <section id="education">
   <div class="wrap">
-    <div class="eyebrow">Education</div>
-    <h2>Background.</h2>
-    <div class="edu reveal">
-      <div class="xp-head">
-        <div><h3>King Mongkut's Institute of Technology Ladkrabang</h3><div class="role">B.Eng. Robotics and AI Engineering · GPA 3.6 / 4</div></div>
-        <div class="when">2022 — 2026</div>
-      </div>
-      <div class="xp-head">
-        <div><h3>University of Information Technology</h3><div class="role">B.Sc. Computer Science, third year · GPA 3.15 / 4</div></div>
-        <div class="when">2018 — 2021</div>
-      </div>
+    <span class="eyebrow">Education</span>
+    <div class="row reveal">
+      <div class="when">2022 — 2026</div>
+      <div><h3>King Mongkut's Institute of Technology Ladkrabang</h3><div class="role">B.Eng. Robotics and AI Engineering · GPA 3.6</div></div>
+    </div>
+    <div class="row reveal">
+      <div class="when">2018 — 2021</div>
+      <div><h3>University of Information Technology</h3><div class="role">B.Sc. Computer Science</div></div>
     </div>
   </div>
 </section>
 
 <section id="recognition">
   <div class="wrap">
-    <div class="eyebrow">Recognition</div>
-    <h2>Along the way.</h2>
-    <ul class="awards reveal">
-      <li><span class="when">2026</span><span>BBC interview on the humanoid bipedal leg with a natural walking gait</span></li>
-      <li><span class="when">2024</span><span>Hult Prize Foundation hackathon, Thailand</span></li>
-      <li><span class="when">2023</span><span>Grand Prize, KTB Case, International Summer School and Hackathon on Technology and Sustainability</span></li>
-      <li><span class="when">2022</span><span>KTB Case, International Summer School and Hackathon on Technology and Sustainability</span></li>
-      <li><span class="when">2020</span><span>Final shortlist, AWS logistics management hackathon</span></li>
-    </ul>
-
-    <div class="oss reveal">
-      <div class="oss-t">Open source</div>
-      <div class="arch">
-        <a href="https://github.com/ptkoo/IsaacSimA1Robot-ReinforementLearning" target="_blank" rel="noopener"><span class="t">Isaac Sim A1 reinforcement learning</span><span class="lang">Python</span></a>
-        <a href="https://github.com/ptkoo/3DOF_Robotic_arm" target="_blank" rel="noopener"><span class="t">3-DOF robotic arm</span><span class="lang">C++</span></a>
-        <a href="https://github.com/ptkoo/GraphBased-PathPlanningAlgo" target="_blank" rel="noopener"><span class="t">Graph-based path planning</span><span class="lang">C</span></a>
-        <a href="https://github.com/ptkoo/lineFollowerSTM32" target="_blank" rel="noopener"><span class="t">STM32 line follower</span><span class="lang">C</span></a>
-      </div>
-    </div>
+    <span class="eyebrow">Recognition</span>
+    <div class="row reveal"><div class="when">2026</div><div class="one"><b>BBC interview</b> on the humanoid bipedal leg with a natural walking gait</div></div>
+    <div class="row reveal"><div class="when">2024</div><div class="one">Hult Prize Foundation hackathon</div></div>
+    <div class="row reveal"><div class="when">2023</div><div class="one"><b>Grand Prize</b>, KTB Case hackathon on technology and sustainability</div></div>
   </div>
 </section>
 
@@ -167,15 +122,14 @@
     <div class="actions">
       <a class="btn primary" href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
       <a class="btn" href="https://www.linkedin.com/in/paing-thet-ko" target="_blank" rel="noopener">LinkedIn</a>
-      <a class="btn" href="https://github.com/ptkoo" target="_blank" rel="noopener">GitHub</a>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <span>© <span id="year"></span> Paing Thet Ko · Bangkok</span>
-    <span>hand-built · hosted on GitHub Pages</span>
+    <span>© <span id="year"></span> Paing Thet Ko</span>
+    <span>Bangkok</span>
   </div>
 </footer>
 

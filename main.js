@@ -66,20 +66,20 @@
   }
 
   // ---- drawing ----
-  const C = { line: '#2e3746', grid: 'rgba(255,255,255,.04)', body: '#1b2130', bodyEdge: '#3a4557',
-              near: '#e6e9ef', far: '#5d6778', accent: '#ffb454', cyan: '#5ee1ff', ok: '#7ee787', ground: '#3a4557' };
+  const C = { line: '#d2d2cb', grid: 'rgba(0,0,0,.04)', body: '#f1f1ec', bodyEdge: '#8a9099',
+              near: '#15171a', far: '#a3a8b0', accent: '#b8600a', cyan: '#0e7490', ok: '#15803d', ground: '#8a9099' };
 
   function drawGround(scroll) {
     ctx.strokeStyle = C.ground; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(0, groundY + .5); ctx.lineTo(W, groundY + .5); ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 1;
     const sp = 40; const off = ((scroll % sp) + sp) % sp;
     for (let x = -off; x < W; x += sp) {
       const major = Math.round((x + off) / sp) % 5 === 0;
       ctx.beginPath(); ctx.moveTo(x, groundY + 4); ctx.lineTo(x, groundY + (major ? 14 : 8)); ctx.stroke();
     }
     // faint hatch below
-    ctx.strokeStyle = 'rgba(255,255,255,.05)';
+    ctx.strokeStyle = 'rgba(0,0,0,.06)';
     for (let x = -off - 60; x < W; x += 20) { ctx.beginPath(); ctx.moveTo(x, groundY + 20); ctx.lineTo(x + 30, groundY + 50); ctx.stroke(); }
   }
 
@@ -98,11 +98,11 @@
     ctx.strokeStyle = col; ctx.lineWidth = lw;
     ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx + s.kx, hy + s.ky); ctx.lineTo(hx + s.fx, hy + s.fy); ctx.stroke();
     // joints
-    ctx.fillStyle = near ? '#0b0d10' : '#141821'; ctx.strokeStyle = col; ctx.lineWidth = near ? 2 : 1.5;
+    ctx.fillStyle = near ? '#ffffff' : '#f1f1ec'; ctx.strokeStyle = col; ctx.lineWidth = near ? 2 : 1.5;
     for (const [x, y, r] of [[hx, hy, 5], [hx + s.kx, hy + s.ky, 4]]) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke(); }
     // foot
     ctx.beginPath(); ctx.arc(hx + s.fx, hy + s.fy, near ? 4.5 : 3.5, 0, 7);
-    ctx.fillStyle = t.contact ? C.ok : (near ? C.accent : '#8a6a3a'); ctx.fill();
+    ctx.fillStyle = t.contact ? C.ok : (near ? C.accent : '#d9a066'); ctx.fill();
     if (t.contact && near) { ctx.globalAlpha = .35; ctx.beginPath(); ctx.arc(hx + s.fx, hy + s.fy, 9, 0, 7); ctx.strokeStyle = C.ok; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1; }
   }
 
@@ -115,7 +115,7 @@
     // eye/camera
     ctx.fillStyle = C.cyan; ctx.beginPath(); ctx.arc(cx + bodyLen / 2 + 22, cy - 4, 3, 0, 7); ctx.fill();
     // IMU tick marks
-    ctx.strokeStyle = 'rgba(255,255,255,.18)';
+    ctx.strokeStyle = 'rgba(0,0,0,.12)';
     for (let i = 1; i < 6; i++) { const gx = x + i * bodyLen / 6; ctx.beginPath(); ctx.moveTo(gx, y + 8); ctx.lineTo(gx, y + bodyH - 8); ctx.stroke(); }
     // com marker
     ctx.strokeStyle = C.accent; ctx.lineWidth = 1.2;
@@ -124,9 +124,9 @@
   }
 
   function drawAxes() {
-    ctx.save(); ctx.font = '10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(152,162,179,.7)';
+    ctx.save(); ctx.font = '10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(95,102,112,.8)';
     ctx.textAlign = 'right'; ctx.fillText('x', W - 14, groundY - 6);
-    ctx.strokeStyle = 'rgba(152,162,179,.4)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(95,102,112,.5)'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(W - 60, groundY - 10); ctx.lineTo(W - 24, groundY - 10); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(W - 28, groundY - 13); ctx.lineTo(W - 24, groundY - 10); ctx.lineTo(W - 28, groundY - 7); ctx.stroke();
     ctx.restore();
