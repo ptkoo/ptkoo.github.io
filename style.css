@@ -152,3 +152,4 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+@media(max-width:720px){.strip .wrap{display:grid;grid-template-columns:1fr 1fr;overflow:visible}.strip .step{min-width:0;border-right:0;border-bottom:1px solid var(--line)}.strip .step:nth-child(odd){border-right:1px solid var(--line)}.strip .step:last-child{border-bottom:0}}

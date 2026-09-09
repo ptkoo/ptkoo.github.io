@@ -5,6 +5,7 @@
   document.getElementById('year').textContent = new Date().getFullYear();
 
   // reveal-on-scroll
+  if (!('IntersectionObserver' in window)) document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
