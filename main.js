@@ -12,8 +12,9 @@
   const canvas = document.getElementById('rig');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const W = 640, H = 440, DPR = Math.min(2, window.devicePixelRatio || 1);
-  canvas.width = W * DPR; canvas.height = H * DPR; ctx.scale(DPR, DPR);
+  // logical drawing space W×H, shown in a 900×400 card (scale K)
+  const W = 720, H = 320, K = 1.25, DPR = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = W * K * DPR; canvas.height = H * K * DPR; ctx.scale(DPR * K, DPR * K);
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -22,7 +23,7 @@
   const bodyLen = 250, bodyH = 44;
   const hipX = { front: bodyLen / 2 - 18, hind: -bodyLen / 2 + 18 };
   const standH = 128;                  // hip height above ground when standing
-  const groundY = 330;
+  const groundY = 252;
 
   // ---- gaits: phase offset per leg, duty factor (fraction of cycle in stance) ----
   // legs: LF, RF, LH, RH
@@ -66,8 +67,8 @@
   }
 
   // ---- drawing ----
-  const C = { line: '#d2d2cb', grid: 'rgba(0,0,0,.04)', body: '#f1f1ec', bodyEdge: '#8a9099',
-              near: '#15171a', far: '#a3a8b0', accent: '#b8600a', cyan: '#0e7490', ok: '#15803d', ground: '#8a9099' };
+  const C = { line: '#d2d2d7', grid: 'rgba(0,0,0,.04)', body: '#ffffff', bodyEdge: '#86868b',
+              near: '#1d1d1f', far: '#b8b8bd', accent: '#ff9f0a', cyan: '#0066cc', ok: '#34c759', ground: '#86868b' };
 
   function drawGround(scroll) {
     ctx.strokeStyle = C.ground; ctx.lineWidth = 1.5;
@@ -98,7 +99,7 @@
     ctx.strokeStyle = col; ctx.lineWidth = lw;
     ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(hx + s.kx, hy + s.ky); ctx.lineTo(hx + s.fx, hy + s.fy); ctx.stroke();
     // joints
-    ctx.fillStyle = near ? '#ffffff' : '#f1f1ec'; ctx.strokeStyle = col; ctx.lineWidth = near ? 2 : 1.5;
+    ctx.fillStyle = near ? '#ffffff' : '#f5f5f7'; ctx.strokeStyle = col; ctx.lineWidth = near ? 2 : 1.5;
     for (const [x, y, r] of [[hx, hy, 5], [hx + s.kx, hy + s.ky, 4]]) { ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.stroke(); }
     // foot
     ctx.beginPath(); ctx.arc(hx + s.fx, hy + s.fy, near ? 4.5 : 3.5, 0, 7);
