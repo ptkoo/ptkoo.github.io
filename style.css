@@ -89,3 +89,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .reveal{opacity:0;transform:translateY(12px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+
+/* featured video */
+.featured{border-top:1px solid var(--line)}
+.video{position:relative;aspect-ratio:16/9;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#000;box-shadow:0 24px 60px -36px rgba(0,0,0,.3)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.caption{font-size:.9rem;color:var(--muted);margin:14px 0 0;font-family:var(--mono);font-size:.78rem}
+.row .one a{border-bottom:1px solid var(--line-2)}
+.row .one a:hover{border-color:var(--text)}
