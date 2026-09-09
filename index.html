@@ -1,595 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shoon's Album</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
-    <style>
-        body, html {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Georgia', serif;
-            background-color: #2c3338;
-            margin: 0;
-            height: 100vh;
-            overflow: hidden;
-            background-image: url('/api/placeholder/400/320');
-            background-blend-mode: multiply;
-        }
-
-        #album {
-            width: 90vw;
-            height: 90vh;
-            box-shadow: 0 30px 50px rgba(0,0,0,0.3),
-                        inset 0 0 60px rgba(0,0,0,0.3);
-            background: #998675;
-            border-radius: 5px;
-            position: relative;
-        }
-
-        /* Enhanced book binding effect */
-        #album::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(to right,
-                rgba(0,0,0,0.2) 0%,
-                rgba(0,0,0,0.05) 50%,
-                rgba(0,0,0,0.2) 100%
-            );
-            z-index: 1;
-            box-shadow: -2px 0 3px rgba(0,0,0,0.1),
-                        2px 0 3px rgba(0,0,0,0.1);
-        }
-
-        .page {
-            background: url('/api/placeholder/400/320') center;
-            background-size: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 40px;
-            box-sizing: border-box;
-            border: none;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Enhanced page texture */
-        .page::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
-                linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%),
-                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            background-color: rgba(255, 253, 246, 0.95);
-            z-index: -1;
-        }
-
-        .cover {
-            background: linear-gradient(45deg, #3c2a1e 0%, #765c48 100%);
-            border: 8px solid #2c1810;
-            border-radius: 5px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Enhanced cover texture */
-        .cover::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px),
-                linear-gradient(0deg, rgba(0,0,0,0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-            opacity: 0.5;
-        }
-
-        .cover::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 3px;
-            background: linear-gradient(45deg, 
-                transparent 48%, 
-                rgba(255,255,255,0.1) 50%, 
-                transparent 52%
-            );
-            background-size: 10px 10px;
-        }
-
-        .cover p {
-            font-size: 3em;
-            color: #e8d5c4;
-            font-family: 'Georgia', serif;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 2;
-        }
-
-        .photo-container {
-            width: 45%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0 20px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1),
-                        inset 0 0 30px rgba(0,0,0,0.05);
-            border: 1px solid #d4c3b3;
-            position: relative;
-            transition: transform 0.3s ease;
-        }
-
-        /* Photo container hover effect */
-        .photo-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15),
-                        inset 0 0 30px rgba(0,0,0,0.05);
-        }
-
-        .photo-container::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 1px solid rgba(0,0,0,0.1);
-            pointer-events: none;
-            background: linear-gradient(135deg,
-                transparent 48%,
-                rgba(0,0,0,0.05) 50%,
-                transparent 52%
-            );
-            background-size: 8px 8px;
-        }
-
-        .page img {
-            width: 100%;
-            border-radius: 3px;
-            margin-bottom: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.15),
-                        0 0 0 1px rgba(0,0,0,0.05);
-            border: 4px solid #fff;
-            transition: transform 0.3s ease;
-        }
-
-        /* Image hover effect */
-        .page img:hover {
-            transform: scale(1.02);
-        }
-
-        .caption {
-            font-size: 1.1em;
-            color: #5d4037;
-            font-style: italic;
-            margin-top: 15px;
-            font-family: 'Georgia', serif;
-            text-shadow: 1px 1px 1px rgba(255,255,255,0.5);
-            position: relative;
-            padding: 0 15px;
-        }
-
-        /* Decorative caption elements */
-        .caption::before,
-        .caption::after {
-            content: '"';
-            position: absolute;
-            font-size: 1.5em;
-            color: rgba(93, 64, 55, 0.3);
-        }
-
-        .caption::before {
-            left: 0;
-            top: -5px;
-        }
-
-        .caption::after {
-            right: 0;
-            bottom: -15px;
-        }
-
-        .ending {
-            background: linear-gradient(45deg, #765c48 0%, #3c2a1e 100%);
-        }
-
-        .ending p {
-            font-size: 2.5em;
-            color: #e8d5c4;
-            font-family: 'Georgia', serif;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        /* Enhanced page corner fold effect */
-        .page::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, 
-                transparent 48%,
-                rgba(0,0,0,0.05) 50%,
-                rgba(0,0,0,0.1) 51%,
-                rgba(255,255,255,0.3) 52%,
-                rgba(0,0,0,0.05) 53%
-            );
-            border-radius: 0 0 0 5px;
-        }
-        /* Simplified audio control styling */
-        .audio-controls {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-
-        }
-
-        .audio-button {
-            background: linear-gradient(45deg, #3c2a1e 0%, #765c48 100%);
-            border: 2px solid #e8d5c4;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-family: 'Georgia', serif;
-            color: #e8d5c4;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .audio-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-            background: linear-gradient(45deg, #4d372a 0%, #876d59 100%);
-        }
-
-        .audio-button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        /* Position the album slightly lower to make room for the controls */
-        #album {
-            margin-top: 60px;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paing Thet Ko · Robotics Engineer</title>
+<meta name="description" content="Paing Thet Ko is a robotics engineer building modern, reliable robotic systems from perception to control. Legged locomotion, state estimation, real-time vision, Rust and Python.">
+<meta property="og:title" content="Paing Thet Ko · Robotics Engineer">
+<meta property="og:description" content="Building modern, reliable robotic systems from perception to control.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ptkoo.github.io/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d10'/%3E%3Cpath d='M9 23 L13 9 L19 21 L23 9' fill='none' stroke='%23ffb454' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- Rest of the HTML remains the same -->
-<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">ptkoo<span>.</span>io</a>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a class="cta" href="#contact">Get in touch</a></li>
+    </ul>
+  </div>
+</nav>
 
-    <!-- Add audio controls -->
-    <div class="audio-controls">
-        <button id="playAudio" class="audio-button">Play Music</button>
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Robotics Engineer · Perception → Control</div>
+      <h1>Paing<br>Thet <em>Ko</em></h1>
+      <p class="lede">I build <b>modern, reliable robotic systems</b> that solve real problems, from perception to control, for smarter machines. Two years in industry turning prototypes into robots that keep working after the demo.</p>
+      <div class="actions">
+        <a class="btn primary" href="#work">See the work
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
+        <a class="btn" href="https://github.com/ptkoo" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+          GitHub</a>
+      </div>
+      <div class="chips">
+        <span class="chip">legged locomotion</span><span class="chip">state estimation</span><span class="chip">MuJoCo · Isaac Sim</span><span class="chip">real-time vision</span><span class="chip">Rust · Python · C++</span><span class="chip">Jetson · Teensy</span>
+      </div>
     </div>
 
-    <audio id="bgMusic" loop>
-        <source src="twosweet.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <div class="rig" aria-label="Animated planar quadruped walking, driven by a live inverse-kinematics gait generator">
+      <canvas id="rig" width="640" height="440"></canvas>
+      <div class="hud"><div>gait <b id="hud-gait">static walk</b></div><div>phase <b id="hud-phase">0.00</b></div><div>v<sub>x</sub> <b id="hud-v">0.00</b> m/s</div></div>
+      <div class="tag">2-link IK · 4 legs · 60 Hz</div>
+      <div class="foot"><span>contact <b id="hud-contact">■ ■ ■ ■</b></span><span>click to change gait</span></div>
+    </div>
+  </div>
+</header>
 
-    
-    <div id="album">
-        <!-- Cover page -->
-        <div class="page cover">
-            <p>Shoon's Album</p>
-        </div>
-    
-        <!-- Album pages with photos -->
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/1.jpg" alt="Photo 1">
-                <p class="caption">"Your smile brightens up every moment"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/2.jpg" alt="Photo 2">
-                <p class="caption">"You make me smile endlessly."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/3.jpg" alt="Photo 3">
-                <p class="caption">"Pure joy in every frame"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/4.jpg" alt="Photo 4">
-                <p class="caption">"Full of life and beauty"</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/5.jpg" alt="Photo 5">
-                <p class="caption">"Your smile brightens up every moment"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/6.jpg" alt="Photo 6">
-                <p class="caption">"You make me smile endlessly."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/7.jpg" alt="Photo 1">
-                <p class="caption">"Happiness bottled"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/8.jpg" alt="Photo 2">
-                <p class="caption">"A perfect capture of joy"</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/9.jpg" alt="Photo 3">
-                <p class="caption">"Cutesy"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/10.jpg" alt="Photo 4">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/11.jpg" alt="Photo 5">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/12.jpg" alt="Photo 6">
-                <p class="caption">"Just looking brings peace"</p>
-            </div>
-        </div>
-    
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/13.jpg" alt="Photo 1">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/14.jpg" alt="Photo 2">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/15.jpg" alt="Photo 3">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/16.jpg" alt="Photo 4">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-        </div>
-     
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/17.jpg" alt="Photo 1">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/18.jpg" alt="Photo 2">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/19.jpg" alt="Photo 3">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/20.jpg" alt="Photo 4">
-                <p class="caption">"Charcoal lay <3."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/21.jpg" alt="Photo 1">
-                <p class="caption">"A nyo yg Charcoal lay <3"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/22.jpg" alt="Photo 2">
-                <p class="caption">"Ti tot vuu vr pyw ya mhn."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/23.jpg" alt="Photo 3">
-                <p class="caption">"A nyo yg Charcoal lay <3"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/24.jpg" alt="Photo 4">
-                <p class="caption">"A nyo yg Charcoal lay <3"</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/25.jpg" alt="Photo 1">
-                <p class="caption">"You light up my world!"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/26.jpg" alt="Photo 2">
-                <p class="caption">"Every day with you is special."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/27.jpg" alt="Photo 3">
-                <p class="caption">"A nyo yg Charcoal lay <3"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/28.jpg" alt="Photo 4">
-                <p class="caption">"A nyo yg Charcoal lay <3"</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/29.jpg" alt="Photo 1">
-                <p class="caption">"A nyo yg Charcoal lay <3"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/30.jpg" alt="Photo 2">
-                <p class="caption">"Charcoal lay <3"</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/31.jpg" alt="Photo 3">
-                <p class="caption">"Every day with you is special."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/32.jpg" alt="Photo 4">
-                <p class="caption">"Chit saya ly <3"</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/33.jpg" alt="Photo 1">
-                <p class="caption">"You light up my world!"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/34.jpg" alt="Photo 2">
-                <p class="caption">"Unforgettable moments together."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/35.jpg" alt="Photo 3">
-                <p class="caption">"Every day with you is special."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/36.jpg" alt="Photo 4">
-                <p class="caption">"Chit Saya Lay <3"</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/37.jpg" alt="Photo 1">
-                <p class="caption">"You light up my world!"</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/38.jpg" alt="Photo 2">
-                <p class="caption">"Unforgettable moments together."</p>
-            </div>
-        </div>
-        <div class="page">
-            <div class="photo-container">
-                <img src="photos/39.jpg" alt="Photo 3">
-                <p class="caption">"Every day with you is special."</p>
-            </div>
-            <div class="photo-container">
-                <img src="photos/40.jpg" alt="Photo 4">
-                <p class="caption">"Chit Saya Lay <3"</p>
-            </div>
-        </div>
-    
-        
-    
-    
-        <!-- Ending page -->
-        <div class="page ending">
-            <p>Sate soe pyay pr plss... &lt;3 </p>
-        </div>
+<div class="strip">
+  <div class="wrap">
+    <div class="step"><div class="k">01</div><div class="v">Perceive</div><div class="d">Stereo cameras, IMUs, contact sensors, encoders.</div></div>
+    <div class="step"><div class="k">02</div><div class="v">Estimate</div><div class="d">Which feet are down, how fast the body moves, where the target is.</div></div>
+    <div class="step"><div class="k">03</div><div class="v">Decide</div><div class="d">Gait generators, reflexes, learned policies, agent runtimes.</div></div>
+    <div class="step"><div class="k">04</div><div class="v">Act</div><div class="d">Twelve motors, one control loop, firmware that fails safely.</div></div>
+    <div class="step"><div class="k">05</div><div class="v">Verify</div><div class="d">Simulate first, measure everything, then trust the hardware.</div></div>
+  </div>
+</div>
+
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">About</div>
+      <h2>Systems that keep working after the demo ends.</h2>
+      <p>I'm a robotics engineer with two years of industry experience. My work sits where the hard parts of robotics meet: the sensor data is noisy, the actuators are cheap, and the robot still has to walk, look, and respond in real time.</p>
+      <p>Most recently I've been building the <strong>locomotion and state-estimation stack for a twelve-motor quadruped</strong>, from a physics model and closed-form inverse kinematics through an omnidirectional gait, a coupled-oscillator closed loop, contact detection, and leg odometry, all validated in MuJoCo and ported to Isaac Sim before it touches hardware.</p>
+      <p>On the perception side I write <strong>real-time vision pipelines in Rust</strong> that run on edge hardware: stereo depth, detection, face identification, and servo tracking in one loop. I care about system identification over guesswork, about firmware that degrades gracefully, and about measuring a thing before claiming it works.</p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat"><div class="n">2<small>yrs</small></div><div class="l">industry robotics experience</div></div>
+      <div class="stat"><div class="n">12<small>DoF</small></div><div class="l">quadruped brought to a stable omnidirectional walk in sim</div></div>
+      <div class="stat"><div class="n">8<small>/8</small></div><div class="l">commanded directions statically stable</div></div>
+      <div class="stat"><div class="n">3<small>langs</small></div><div class="l">Rust, Python, C++ in production paths</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="eyebrow">Selected work</div>
+    <h2>From physics model to walking robot.</h2>
+    <p class="muted" style="max-width:40rem;margin-bottom:34px">Industry work is described at the level I can share. Public projects link to their repositories.</p>
+
+    <div class="grid">
+      <article class="card feature reveal">
+        <div class="top"><span class="num">01</span><span class="badge private">industry · private</span></div>
+        <h3>Quadruped locomotion in simulation</h3>
+        <p>Built the full locomotion stack for a small four-legged robot with linkage legs driven by twelve Dynamixel servos. Started from the CAD, ended with a robot that walks in any direction.</p>
+        <ul>
+          <li>MuJoCo model with closed kinematic loops, masses measured on hardware, centre of mass verified against the real robot.</li>
+          <li>Closed-form per-leg inverse kinematics with a self-test against the simulator.</li>
+          <li>Statically stable forward walk, then an omnidirectional gait taking a (v<sub>x</sub>, v<sub>y</sub>, ω) command. Stable in all eight commanded directions.</li>
+          <li>Four coupled phase oscillators as the gait clock, with contact reflexes and posture, balance and speed loops closing around them.</li>
+          <li>Ablation studies on the passive ankle spring, drop tests, and a parameter sweep harness.</li>
+        </ul>
+        <div class="tags"><span>mujoco</span><span>kinematics</span><span>cpg</span><span>gait</span><span>python</span></div>
+      </article>
+
+      <article class="card reveal">
+        <div class="top"><span class="num">02</span><span class="badge private">industry · private</span></div>
+        <h3>State estimation from cheap sensors</h3>
+        <p>What can the robot know about itself from an IMU and four ankle hall sensors? Contact detection, body velocity from leg kinematics, and fusion with the IMU, each design choice measured against ground truth including foot slip.</p>
+        <div class="tags"><span>estimation</span><span>odometry</span><span>imu</span><span>sensor-fusion</span></div>
+      </article>
+
+      <article class="card reveal">
+        <div class="top"><span class="num">03</span><span class="badge private">industry · private</span></div>
+        <h3>MuJoCo → Isaac Sim port</h3>
+        <p>Ported the robot to Isaac Sim for reinforcement learning at scale: exporting the MJCF, rebuilding eight closed pantograph loops in USD, and a zero-g joint bench to prove the port before training. Wrote the from-zero guide the team uses.</p>
+        <div class="tags"><span>isaac-sim</span><span>usd</span><span>sim-to-real</span><span>rl</span></div>
+      </article>
+
+      <article class="card reveal">
+        <div class="top"><span class="num">04</span><span class="badge private">industry · private</span></div>
+        <h3>Real-time stereo vision head tracker</h3>
+        <p>A Rust pipeline that takes a side-by-side stereo frame, runs person detection, tracks people across frames, identifies faces against an authorised set, reads emotion, computes depth from disparity, and drives yaw and pitch servos to hold the target. One loop, edge hardware.</p>
+        <div class="tags"><span>rust</span><span>onnx</span><span>opencv</span><span>stereo</span><span>servos</span></div>
+      </article>
+
+      <article class="card reveal">
+        <div class="top"><span class="num">05</span><span class="badge private">industry · private</span></div>
+        <h3>Modular agent runtime in Rust</h3>
+        <p>A trait-based SDK for robot-side AI agents: transport, pipeline, auth, memory and observer are all swappable behind traits, so the same runtime speaks over different channels without touching the core.</p>
+        <div class="tags"><span>rust</span><span>async</span><span>architecture</span><span>agents</span></div>
+      </article>
+
+      <article class="card reveal">
+        <div class="top"><span class="num">06</span><span class="badge public">public</span></div>
+        <h3>Isaac Sim A1 reinforcement learning</h3>
+        <p>Training a Unitree A1 quadruped to walk in Isaac Sim. The project that pulled me from notebooks into legged robots.</p>
+        <a class="more" href="https://github.com/ptkoo/IsaacSimA1Robot-ReinforementLearning" target="_blank" rel="noopener">View repository →</a>
+        <div class="tags"><span>isaac-sim</span><span>rl</span><span>python</span></div>
+      </article>
     </div>
 
-    <script>
-        $(document).ready(function(){
-            let transitionInterval;
-            
-            $("#album").turn({
-                width: "90vw",
-                height: "90vh",
-                autoCenter: true,
-                duration: 1500,
-                acceleration: true,
-                gradients: true,
-                elevation: 50,
-                when: {
-                    turning: function(event, page, view) {
-                        if (page === 1 || page === $("#album").turn("pages")) {
-                            $("#album").turn("display", "single");
-                        } else {
-                            $("#album").turn("display", "double");
-                        }
-                    }
-                }
-            });
-    
-            function startTransition() {
-                transitionInterval = setInterval(function() {
-                    if ($("#album").turn("page") < $("#album").turn("pages")) {
-                        $("#album").turn("next");
-                    } else {
-                        $("#album").turn("page", 1);
-                    }
-                }, 7000);
-            }
-    
-            function stopTransition() {
-                clearInterval(transitionInterval);
-            }
-    
-            $('#album').click(function() {
-                $(this).turn("next");
-            });
-    
-            // Audio functionality with transition control
-            const bgMusic = document.getElementById('bgMusic');
-            const playButton = document.getElementById('playAudio');
-            let isPlaying = false;
-    
-            playButton.addEventListener('click', function() {
-                if (!isPlaying) {
-                    bgMusic.play()
-                        .then(() => {
-                            isPlaying = true;
-                            playButton.textContent = 'Pause Music';
-                            startTransition(); // Start transitions when music plays
-                        })
-                        .catch(error => {
-                            console.error('Error playing audio:', error);
-                        });
-                } else {
-                    bgMusic.pause();
-                    isPlaying = false;
-                    playButton.textContent = 'Play Music';
-                    stopTransition(); // Stop transitions when music is paused
-                }
-            });
-        });
-    </script>
+    <div class="archive reveal">
+      <h3>Earlier public projects</h3>
+      <div class="arch">
+        <a href="https://github.com/ptkoo/3DOF_Robotic_arm" target="_blank" rel="noopener"><span class="t">3-DOF robotic arm</span><span class="s">Kinematics and control for a small arm, final project.</span><span class="lang">C++</span></a>
+        <a href="https://github.com/ptkoo/GraphBased-PathPlanningAlgo" target="_blank" rel="noopener"><span class="t">Graph-based path planning</span><span class="s">Search algorithms implemented from scratch.</span><span class="lang">C</span></a>
+        <a href="https://github.com/ptkoo/telloDroneHandGestureControl" target="_blank" rel="noopener"><span class="t">Gesture-controlled drone</span><span class="s">Flying a Tello with hand gestures from a webcam.</span><span class="lang">Python</span></a>
+        <a href="https://github.com/ptkoo/lineFollowerSTM32" target="_blank" rel="noopener"><span class="t">STM32 line follower</span><span class="s">Bare-metal firmware for a line-following robot.</span><span class="lang">C</span></a>
+        <a href="https://github.com/ptkoo/ptkoo-Meta-Learning-Bayesian-Optimization" target="_blank" rel="noopener"><span class="t">Meta-learning Bayesian optimisation</span><span class="s">Transferring priors between optimisation tasks.</span><span class="lang">Jupyter</span></a>
+        <a href="https://github.com/ptkoo/reinforcementLearning" target="_blank" rel="noopener"><span class="t">Reinforcement learning in C</span><span class="s">Tabular methods without a framework.</span><span class="lang">C</span></a>
+        <a href="https://github.com/ptkoo/hand_gesture_robot_control" target="_blank" rel="noopener"><span class="t">Gesture robot control</span><span class="s">Vision-based hand tracking driving a robot.</span><span class="lang">Python</span></a>
+        <a href="https://github.com/ptkoo/2DPlotterFromImage" target="_blank" rel="noopener"><span class="t">2D plotter from image</span><span class="s">Image to toolpath to motion.</span><span class="lang">Jupyter</span></a>
+      </div>
+    </div>
+  </div>
+</section>
 
+<section id="skills">
+  <div class="wrap">
+    <div class="eyebrow">Toolbox</div>
+    <h2>What I work with.</h2>
+    <div class="skills reveal">
+      <div class="skill"><h3>Locomotion & control</h3><ul><li>Legged gait design, CPGs, reflexes</li><li>Inverse kinematics, closed-chain linkages</li><li>Whole-body posture and balance loops</li><li>System identification of servo actuators</li></ul></div>
+      <div class="skill"><h3>Perception & estimation</h3><ul><li>Stereo depth, detection, tracking</li><li>Face identification, ONNX Runtime</li><li>IMU modelling, contact detection</li><li>Leg odometry and sensor fusion</li></ul></div>
+      <div class="skill"><h3>Simulation & learning</h3><ul><li>MuJoCo, Isaac Sim, Isaac Lab</li><li>MJCF, URDF, USD</li><li>Reinforcement learning for locomotion</li><li>Bayesian optimisation, PyTorch</li></ul></div>
+      <div class="skill"><h3>Software & hardware</h3><ul><li>Rust, Python, C and C++</li><li>ROS, Docker, systemd, Linux</li><li>Jetson Orin, Teensy, STM32</li><li>Dynamixel and serial-bus servos</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="wrap">
+    <div class="eyebrow">Experience</div>
+    <h2>Where I've been.</h2>
+    <div class="tl reveal">
+      <!-- EDIT: add your company name and exact dates here -->
+      <div class="item">
+        <div class="when">2024 — PRESENT</div>
+        <h3>Robotics Engineer <span>· quadruped robot startup</span></h3>
+        <p>Owned locomotion and state estimation for a new legged robot: physics model, kinematics, gait generation, closed-loop control and sensor-based estimation, from first simulation to hardware bring-up. Built real-time Rust perception nodes and the team's simulation tooling and documentation.</p>
+      </div>
+      <div class="item">
+        <div class="when">2022 — 2024</div>
+        <h3>Independent projects <span>· robotics and machine learning</span></h3>
+        <p>Reinforcement learning for a quadruped in Isaac Sim, a 3-DOF arm, path-planning algorithms, embedded line-following firmware, and gesture-controlled drones and robots. Learned by building, and by breaking, a lot of things.</p>
+      </div>
+      <div class="item">
+        <div class="when">2020 — 2022</div>
+        <h3>Software foundations <span>· web and tooling</span></h3>
+        <p>Full-stack JavaScript and React work that taught me to ship, test, and maintain software people depend on. That discipline carried straight into robotics.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap reveal">
+    <div class="eyebrow">Contact</div>
+    <h2>Let's build something that moves.</h2>
+    <p>Open to conversations about legged robots, perception on the edge, and teams that take reliability seriously.</p>
+    <div class="actions">
+      <a class="btn primary" href="mailto:paingthatkoo@gmail.com">Email me</a>
+      <a class="btn" href="https://github.com/ptkoo" target="_blank" rel="noopener">GitHub</a>
+      <!-- EDIT: uncomment and add your handle
+      <a class="btn" href="https://www.linkedin.com/in/YOUR-HANDLE" target="_blank" rel="noopener">LinkedIn</a>
+      -->
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> Paing Thet Ko</span>
+    <span>hand-built · no framework · hosted on GitHub Pages</span>
+  </div>
+</footer>
+
+<script src="main.js" defer></script>
 </body>
 </html>
