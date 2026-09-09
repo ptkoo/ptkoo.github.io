@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Paing Thet Ko · Robotics Engineer</title>
-<meta name="description" content="Paing Thet Ko is a robotics engineer building modern, reliable robotic systems from perception to control. Legged locomotion, state estimation, real-time vision, Rust and Python.">
-<meta property="og:title" content="Paing Thet Ko · Robotics Engineer">
-<meta property="og:description" content="Building modern, reliable robotic systems from perception to control.">
+<title>Paing Thet Ko · Robotics Software Engineer</title>
+<meta name="description" content="Paing Thet Ko, robotics software engineer in Bangkok. Reinforcement-learning locomotion, real-time control, state estimation. Python, C++, Rust, ROS 2, Isaac Sim, MuJoCo.">
+<meta property="og:title" content="Paing Thet Ko · Robotics Software Engineer">
+<meta property="og:description" content="Building modern, reliable robotics systems from perception to control.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ptkoo.github.io/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d10'/%3E%3Cpath d='M9 23 L13 9 L19 21 L23 9' fill='none' stroke='%23ffb454' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -21,11 +21,11 @@
   <div class="wrap">
     <a class="brand" href="#top">ptkoo<span>.</span>io</a>
     <ul>
-      <li><a href="#about">About</a></li>
-      <li><a href="#work">Work</a></li>
-      <li><a href="#skills">Skills</a></li>
       <li><a href="#experience">Experience</a></li>
-      <li><a class="cta" href="#contact">Get in touch</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#recognition">Recognition</a></li>
+      <li><a class="cta" href="mailto:paingthetko2000@gmail.com">Email</a></li>
     </ul>
   </div>
 </nav>
@@ -33,18 +33,16 @@
 <header class="hero" id="top">
   <div class="wrap">
     <div>
-      <div class="eyebrow">Robotics Engineer · Perception → Control</div>
+      <div class="eyebrow">Robotics Software Engineer · Bangkok</div>
       <h1>Paing<br>Thet <em>Ko</em></h1>
-      <p class="lede">I build <b>modern, reliable robotic systems</b> that solve real problems, from perception to control, for smarter machines. Two years in industry turning prototypes into robots that keep working after the demo.</p>
+      <p class="lede">Building <b>modern, reliable robotics systems</b> that solve real problems, from perception to control, for smarter machines.</p>
       <div class="actions">
-        <a class="btn primary" href="#work">See the work
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
-        <a class="btn" href="https://github.com/ptkoo" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
-          GitHub</a>
+        <a class="btn primary" href="mailto:paingthetko2000@gmail.com">Email me</a>
+        <a class="btn" href="https://www.linkedin.com/in/paing-thet-ko" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn" href="https://github.com/ptkoo" target="_blank" rel="noopener">GitHub</a>
       </div>
       <div class="chips">
-        <span class="chip">legged locomotion</span><span class="chip">state estimation</span><span class="chip">MuJoCo · Isaac Sim</span><span class="chip">real-time vision</span><span class="chip">Rust · Python · C++</span><span class="chip">Jetson · Teensy</span>
+        <span class="chip">RL locomotion</span><span class="chip">CPG gaits</span><span class="chip">real-time control</span><span class="chip">state estimation</span><span class="chip">ROS 2 · CAN</span><span class="chip">Isaac · MuJoCo</span>
       </div>
     </div>
 
@@ -57,141 +55,107 @@
   </div>
 </header>
 
-<div class="strip">
+<section id="experience">
   <div class="wrap">
-    <div class="step"><div class="k">01</div><div class="v">Perceive</div><div class="d">Stereo cameras, IMUs, contact sensors, encoders.</div></div>
-    <div class="step"><div class="k">02</div><div class="v">Estimate</div><div class="d">Which feet are down, how fast the body moves, where the target is.</div></div>
-    <div class="step"><div class="k">03</div><div class="v">Decide</div><div class="d">Gait generators, reflexes, learned policies, agent runtimes.</div></div>
-    <div class="step"><div class="k">04</div><div class="v">Act</div><div class="d">Twelve motors, one control loop, firmware that fails safely.</div></div>
-    <div class="step"><div class="k">05</div><div class="v">Verify</div><div class="d">Simulate first, measure everything, then trust the hardware.</div></div>
-  </div>
-</div>
+    <div class="eyebrow">Experience</div>
+    <h2>Two years of shipping robots.</h2>
 
-<section class="about" id="about">
-  <div class="wrap">
-    <div class="reveal">
-      <div class="eyebrow">About</div>
-      <h2>Systems that keep working after the demo ends.</h2>
-      <p>I'm a robotics engineer with two years of industry experience. My work sits where the hard parts of robotics meet: the sensor data is noisy, the actuators are cheap, and the robot still has to walk, look, and respond in real time.</p>
-      <p>Most recently I've been building the <strong>locomotion and state-estimation stack for a twelve-motor quadruped</strong>, from a physics model and closed-form inverse kinematics through an omnidirectional gait, a coupled-oscillator closed loop, contact detection, and leg odometry, all validated in MuJoCo and ported to Isaac Sim before it touches hardware.</p>
-      <p>On the perception side I write <strong>real-time vision pipelines in Rust</strong> that run on edge hardware: stereo depth, detection, face identification, and servo tracking in one loop. I care about system identification over guesswork, about firmware that degrades gracefully, and about measuring a thing before claiming it works.</p>
-    </div>
-    <div class="stats reveal">
-      <div class="stat"><div class="n">2<small>yrs</small></div><div class="l">industry robotics experience</div></div>
-      <div class="stat"><div class="n">12<small>DoF</small></div><div class="l">quadruped brought to a stable omnidirectional walk in sim</div></div>
-      <div class="stat"><div class="n">8<small>/8</small></div><div class="l">commanded directions statically stable</div></div>
-      <div class="stat"><div class="n">3<small>langs</small></div><div class="l">Rust, Python, C++ in production paths</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="work">
-  <div class="wrap">
-    <div class="eyebrow">Selected work</div>
-    <h2>From physics model to walking robot.</h2>
-    <p class="muted" style="max-width:40rem;margin-bottom:34px">Industry work is described at the level I can share. Public projects link to their repositories.</p>
-
-    <div class="grid">
-      <article class="card feature reveal">
-        <div class="top"><span class="num">01</span><span class="badge private">industry · private</span></div>
-        <h3>Quadruped locomotion in simulation</h3>
-        <p>Built the full locomotion stack for a small four-legged robot with linkage legs driven by twelve Dynamixel servos. Started from the CAD, ended with a robot that walks in any direction.</p>
-        <ul>
-          <li>MuJoCo model with closed kinematic loops, masses measured on hardware, centre of mass verified against the real robot.</li>
-          <li>Closed-form per-leg inverse kinematics with a self-test against the simulator.</li>
-          <li>Statically stable forward walk, then an omnidirectional gait taking a (v<sub>x</sub>, v<sub>y</sub>, ω) command. Stable in all eight commanded directions.</li>
-          <li>Four coupled phase oscillators as the gait clock, with contact reflexes and posture, balance and speed loops closing around them.</li>
-          <li>Ablation studies on the passive ankle spring, drop tests, and a parameter sweep harness.</li>
-        </ul>
-        <div class="tags"><span>mujoco</span><span>kinematics</span><span>cpg</span><span>gait</span><span>python</span></div>
-      </article>
-
-      <article class="card reveal">
-        <div class="top"><span class="num">02</span><span class="badge private">industry · private</span></div>
-        <h3>State estimation from cheap sensors</h3>
-        <p>What can the robot know about itself from an IMU and four ankle hall sensors? Contact detection, body velocity from leg kinematics, and fusion with the IMU, each design choice measured against ground truth including foot slip.</p>
-        <div class="tags"><span>estimation</span><span>odometry</span><span>imu</span><span>sensor-fusion</span></div>
-      </article>
-
-      <article class="card reveal">
-        <div class="top"><span class="num">03</span><span class="badge private">industry · private</span></div>
-        <h3>MuJoCo → Isaac Sim port</h3>
-        <p>Ported the robot to Isaac Sim for reinforcement learning at scale: exporting the MJCF, rebuilding eight closed pantograph loops in USD, and a zero-g joint bench to prove the port before training. Wrote the from-zero guide the team uses.</p>
-        <div class="tags"><span>isaac-sim</span><span>usd</span><span>sim-to-real</span><span>rl</span></div>
-      </article>
-
-      <article class="card reveal">
-        <div class="top"><span class="num">04</span><span class="badge private">industry · private</span></div>
-        <h3>Real-time stereo vision head tracker</h3>
-        <p>A Rust pipeline that takes a side-by-side stereo frame, runs person detection, tracks people across frames, identifies faces against an authorised set, reads emotion, computes depth from disparity, and drives yaw and pitch servos to hold the target. One loop, edge hardware.</p>
-        <div class="tags"><span>rust</span><span>onnx</span><span>opencv</span><span>stereo</span><span>servos</span></div>
-      </article>
-
-      <article class="card reveal">
-        <div class="top"><span class="num">05</span><span class="badge private">industry · private</span></div>
-        <h3>Modular agent runtime in Rust</h3>
-        <p>A trait-based SDK for robot-side AI agents: transport, pipeline, auth, memory and observer are all swappable behind traits, so the same runtime speaks over different channels without touching the core.</p>
-        <div class="tags"><span>rust</span><span>async</span><span>architecture</span><span>agents</span></div>
-      </article>
-
-      <article class="card feature reveal">
-        <div class="top"><span class="num">06</span><span class="badge public">public</span></div>
-        <h3>Isaac Sim A1 reinforcement learning</h3>
-        <p>Training a Unitree A1 quadruped to walk in Isaac Sim. The project that pulled me from notebooks into legged robots.</p>
-        <a class="more" href="https://github.com/ptkoo/IsaacSimA1Robot-ReinforementLearning" target="_blank" rel="noopener">View repository →</a>
-        <div class="tags"><span>isaac-sim</span><span>rl</span><span>python</span></div>
-      </article>
-    </div>
-
-    <div class="archive reveal">
-      <h3>Earlier public projects</h3>
-      <div class="arch">
-        <a href="https://github.com/ptkoo/3DOF_Robotic_arm" target="_blank" rel="noopener"><span class="t">3-DOF robotic arm</span><span class="s">Kinematics and control for a small arm, final project.</span><span class="lang">C++</span></a>
-        <a href="https://github.com/ptkoo/GraphBased-PathPlanningAlgo" target="_blank" rel="noopener"><span class="t">Graph-based path planning</span><span class="s">Search algorithms implemented from scratch.</span><span class="lang">C</span></a>
-        <a href="https://github.com/ptkoo/telloDroneHandGestureControl" target="_blank" rel="noopener"><span class="t">Gesture-controlled drone</span><span class="s">Flying a Tello with hand gestures from a webcam.</span><span class="lang">Python</span></a>
-        <a href="https://github.com/ptkoo/lineFollowerSTM32" target="_blank" rel="noopener"><span class="t">STM32 line follower</span><span class="s">Bare-metal firmware for a line-following robot.</span><span class="lang">C</span></a>
-        <a href="https://github.com/ptkoo/ptkoo-Meta-Learning-Bayesian-Optimization" target="_blank" rel="noopener"><span class="t">Meta-learning Bayesian optimisation</span><span class="s">Transferring priors between optimisation tasks.</span><span class="lang">Jupyter</span></a>
-        <a href="https://github.com/ptkoo/reinforcementLearning" target="_blank" rel="noopener"><span class="t">Reinforcement learning in C</span><span class="s">Tabular methods without a framework.</span><span class="lang">C</span></a>
-        <a href="https://github.com/ptkoo/hand_gesture_robot_control" target="_blank" rel="noopener"><span class="t">Gesture robot control</span><span class="s">Vision-based hand tracking driving a robot.</span><span class="lang">Python</span></a>
-        <a href="https://github.com/ptkoo/2DPlotterFromImage" target="_blank" rel="noopener"><span class="t">2D plotter from image</span><span class="s">Image to toolpath to motion.</span><span class="lang">Jupyter</span></a>
+    <div class="xp reveal">
+      <div class="xp-head">
+        <div><h3>General Magic (Thailand) Co., Ltd.</h3><div class="role">Robotics Software Engineer</div></div>
+        <div class="when">Dec 2024 — Present</div>
       </div>
+      <div class="proj">
+        <div class="proj-t">Humanoid bipedal legs with a natural walking gait</div>
+        <ul>
+          <li>Trained walking, one-legged and two-legged swing policies with PPO and teacher-student distillation in Isaac Lab. Verified sim-to-sim in MuJoCo, then on hardware.</li>
+          <li>Zero-shot transfer through actuator friction models, tuned sensor physics and domain randomisation.</li>
+          <li>Soft real-time ROS 2 control loop running the policies on the robot. C++ CAN libraries for Cubemars actuators and STM32 links at 2000 Hz.</li>
+        </ul>
+      </div>
+      <div class="proj">
+        <div class="proj-t">Agentic control architecture for bio-inspired feline robots</div>
+        <ul>
+          <li>High-brain / low-brain topology: LLM task planning above, high-frequency local control on edge devices below.</li>
+          <li>Multimodal pipelines linking vision, voice and locomotion. RL policies for cat behaviours.</li>
+          <li>Central pattern generator (CPG) locomotion: coupled phase oscillators as the gait clock, contact reflexes and posture loops closed around them, validated in MuJoCo.</li>
+          <li>Depth-to-costmap navigation and visual-inertial state estimation from RGB-D and IMU.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="xp reveal">
+      <div class="xp-head">
+        <div><h3>Siam NSK Steering Systems Co., Ltd.</h3><div class="role">Assistant Engineer</div></div>
+        <div class="when">Apr — Jun 2024</div>
+      </div>
+      <ul>
+        <li>Programmed Fanuc and Dobot robots on the manufacturing line and optimised automation processes.</li>
+        <li>Built the factory-wide maintenance control system.</li>
+      </ul>
+    </div>
+
+    <div class="xp reveal">
+      <div class="xp-head">
+        <div><h3>Ko Tine Thin</h3><div class="role">Junior Web Developer · non-profit learning platform</div></div>
+        <div class="when">Feb — Jun 2022</div>
+      </div>
+      <ul>
+        <li>Database design and full API implementation. TypeScript, Express, TypeORM, Postgres.</li>
+      </ul>
     </div>
   </div>
 </section>
 
 <section id="skills">
   <div class="wrap">
-    <div class="eyebrow">Toolbox</div>
-    <h2>What I work with.</h2>
+    <div class="eyebrow">Skills</div>
+    <h2>Toolbox.</h2>
     <div class="skills reveal">
-      <div class="skill"><h3>Locomotion & control</h3><ul><li>Legged gait design, CPGs, reflexes</li><li>Inverse kinematics, closed-chain linkages</li><li>Whole-body posture and balance loops</li><li>System identification of servo actuators</li></ul></div>
-      <div class="skill"><h3>Perception & estimation</h3><ul><li>Stereo depth, detection, tracking</li><li>Face identification, ONNX Runtime</li><li>IMU modelling, contact detection</li><li>Leg odometry and sensor fusion</li></ul></div>
-      <div class="skill"><h3>Simulation & learning</h3><ul><li>MuJoCo, Isaac Sim, Isaac Lab</li><li>MJCF, URDF, USD</li><li>Reinforcement learning for locomotion</li><li>Bayesian optimisation, PyTorch</li></ul></div>
-      <div class="skill"><h3>Software & hardware</h3><ul><li>Rust, Python, C and C++</li><li>ROS, Docker, systemd, Linux</li><li>Jetson Orin, Teensy, STM32</li><li>Dynamixel and serial-bus servos</li></ul></div>
+      <div class="skill"><h3>Languages</h3><ul><li>Python</li><li>Modern C++</li><li>Rust</li></ul></div>
+      <div class="skill"><h3>Middleware</h3><ul><li>ROS 2</li><li>SocketCAN</li><li>Multi-threaded real-time control</li></ul></div>
+      <div class="skill"><h3>Simulation</h3><ul><li>NVIDIA Isaac Sim / Lab</li><li>MuJoCo (MJCF)</li><li>Gazebo, RViz</li></ul></div>
+      <div class="skill"><h3>Control</h3><ul><li>Deep reinforcement learning</li><li>CPG gait generation</li><li>State estimation, EKF, VIO</li><li>PID / PD torque control</li></ul></div>
     </div>
   </div>
 </section>
 
-<section id="experience">
+<section id="education">
   <div class="wrap">
-    <div class="eyebrow">Experience</div>
-    <h2>Where I've been.</h2>
-    <div class="tl reveal">
-      <!-- EDIT: add your company name and exact dates here -->
-      <div class="item">
-        <div class="when">2024 — PRESENT</div>
-        <h3>Robotics Engineer <span>· quadruped robot startup</span></h3>
-        <p>Owned locomotion and state estimation for a new legged robot: physics model, kinematics, gait generation, closed-loop control and sensor-based estimation, from first simulation to hardware bring-up. Built real-time Rust perception nodes and the team's simulation tooling and documentation.</p>
+    <div class="eyebrow">Education</div>
+    <h2>Background.</h2>
+    <div class="edu reveal">
+      <div class="xp-head">
+        <div><h3>King Mongkut's Institute of Technology Ladkrabang</h3><div class="role">B.Eng. Robotics and AI Engineering · GPA 3.6 / 4</div></div>
+        <div class="when">2022 — 2026</div>
       </div>
-      <div class="item">
-        <div class="when">2022 — 2024</div>
-        <h3>Independent projects <span>· robotics and machine learning</span></h3>
-        <p>Reinforcement learning for a quadruped in Isaac Sim, a 3-DOF arm, path-planning algorithms, embedded line-following firmware, and gesture-controlled drones and robots. Learned by building, and by breaking, a lot of things.</p>
+      <div class="xp-head">
+        <div><h3>University of Information Technology</h3><div class="role">B.Sc. Computer Science, third year · GPA 3.15 / 4</div></div>
+        <div class="when">2018 — 2021</div>
       </div>
-      <div class="item">
-        <div class="when">2020 — 2022</div>
-        <h3>Software foundations <span>· web and tooling</span></h3>
-        <p>Full-stack JavaScript and React work that taught me to ship, test, and maintain software people depend on. That discipline carried straight into robotics.</p>
+    </div>
+  </div>
+</section>
+
+<section id="recognition">
+  <div class="wrap">
+    <div class="eyebrow">Recognition</div>
+    <h2>Along the way.</h2>
+    <ul class="awards reveal">
+      <li><span class="when">2026</span><span>BBC interview on the humanoid bipedal leg with a natural walking gait</span></li>
+      <li><span class="when">2024</span><span>Hult Prize Foundation hackathon, Thailand</span></li>
+      <li><span class="when">2023</span><span>Grand Prize, KTB Case, International Summer School and Hackathon on Technology and Sustainability</span></li>
+      <li><span class="when">2022</span><span>KTB Case, International Summer School and Hackathon on Technology and Sustainability</span></li>
+      <li><span class="when">2020</span><span>Final shortlist, AWS logistics management hackathon</span></li>
+    </ul>
+
+    <div class="oss reveal">
+      <div class="oss-t">Open source</div>
+      <div class="arch">
+        <a href="https://github.com/ptkoo/IsaacSimA1Robot-ReinforementLearning" target="_blank" rel="noopener"><span class="t">Isaac Sim A1 reinforcement learning</span><span class="lang">Python</span></a>
+        <a href="https://github.com/ptkoo/3DOF_Robotic_arm" target="_blank" rel="noopener"><span class="t">3-DOF robotic arm</span><span class="lang">C++</span></a>
+        <a href="https://github.com/ptkoo/GraphBased-PathPlanningAlgo" target="_blank" rel="noopener"><span class="t">Graph-based path planning</span><span class="lang">C</span></a>
+        <a href="https://github.com/ptkoo/lineFollowerSTM32" target="_blank" rel="noopener"><span class="t">STM32 line follower</span><span class="lang">C</span></a>
       </div>
     </div>
   </div>
@@ -199,23 +163,19 @@
 
 <section class="contact" id="contact">
   <div class="wrap reveal">
-    <div class="eyebrow">Contact</div>
     <h2>Let's build something that moves.</h2>
-    <p>Open to conversations about legged robots, perception on the edge, and teams that take reliability seriously.</p>
     <div class="actions">
-      <a class="btn primary" href="mailto:paingthatkoo@gmail.com">Email me</a>
+      <a class="btn primary" href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a class="btn" href="https://www.linkedin.com/in/paing-thet-ko" target="_blank" rel="noopener">LinkedIn</a>
       <a class="btn" href="https://github.com/ptkoo" target="_blank" rel="noopener">GitHub</a>
-      <!-- EDIT: uncomment and add your handle
-      <a class="btn" href="https://www.linkedin.com/in/YOUR-HANDLE" target="_blank" rel="noopener">LinkedIn</a>
-      -->
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <span>© <span id="year"></span> Paing Thet Ko</span>
-    <span>hand-built · no framework · hosted on GitHub Pages</span>
+    <span>© <span id="year"></span> Paing Thet Ko · Bangkok</span>
+    <span>hand-built · hosted on GitHub Pages</span>
   </div>
 </footer>
 
