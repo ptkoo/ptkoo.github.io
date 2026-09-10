@@ -1,4 +1,4 @@
-/* ptkoo.github.io — hero rig: a planar quadruped walked by a live 2-link IK gait generator */
+/* ptkoo.github.io — hero rig: a planar quadruped and a planar biped, both walked by a live 2-link IK gait generator */
 (() => {
   'use strict';
 
@@ -19,7 +19,7 @@
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---- robot geometry (screen px; 1 m ≈ 1000 px, so a 0.24 m body is 240 px) ----
-  const L1 = 78, L2 = 84;              // thigh, shank
+  const LEG = { L1: 78, L2: 84 };      // quadruped thigh, shank
   const bodyLen = 250, bodyH = 44;
   const hipX = { front: bodyLen / 2 - 18, hind: -bodyLen / 2 + 18 };
   const standH = 128;                  // hip height above ground when standing
@@ -37,23 +37,23 @@
     gait: document.getElementById('hud-gait'), phase: document.getElementById('hud-phase'),
     v: document.getElementById('hud-v'), contact: document.getElementById('hud-contact'),
   };
-  canvas.parentElement.addEventListener('click', () => { gi = (gi + 1) % GAITS.length; gait = GAITS[gi]; hud.gait.textContent = gait.name; });
+  canvas.parentElement.addEventListener('click', () => { gi = (gi + 1) % GAITS.length; gait = GAITS[gi]; hud.gait.textContent = gait.name + ' · ' + BIPED[gi].name; });
 
   // foot target in hip frame for a leg at phase p ∈ [0,1). +x forward, +y down.
-  function footTarget(p, g) {
+  function footTarget(p, g, h = standH) {
     const s = g.stride, d = g.duty;
     if (p < d) {                                   // stance: foot slides backward under the hip
       const u = p / d;
-      return { x: s / 2 - s * u, y: standH, contact: true };
+      return { x: s / 2 - s * u, y: h, contact: true };
     }
     const u = (p - d) / (1 - d);                   // swing: forward with a smooth lift
     const x = -s / 2 + s * (u - Math.sin(2 * Math.PI * u) / (2 * Math.PI));
-    const y = standH - g.lift * Math.sin(Math.PI * u) ** 1.4;
+    const y = h - g.lift * Math.sin(Math.PI * u) ** 1.4;
     return { x, y, contact: false };
   }
 
   // 2-link planar IK: hip at origin, returns knee point. kneeSign: +1 knee forward, -1 knee back.
-  function ik(x, y, kneeSign) {
+  function ik(x, y, kneeSign, L1 = LEG.L1, L2 = LEG.L2) {
     let r = Math.hypot(x, y);
     const rMax = L1 + L2 - 1e-3, rMin = Math.abs(L1 - L2) + 1e-3;
     if (r > rMax) { x *= rMax / r; y *= rMax / r; r = rMax; }
@@ -84,15 +84,15 @@
     for (let x = -off - 60; x < W; x += 20) { ctx.beginPath(); ctx.moveTo(x, groundY + 20); ctx.lineTo(x + 30, groundY + 50); ctx.stroke(); }
   }
 
-  function drawSwingPath(hx, hy, g, color) {
+  function drawSwingPath(hx, hy, g, color, h = standH) {
     ctx.save(); ctx.setLineDash([3, 5]); ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.globalAlpha = .55;
     ctx.beginPath();
-    for (let i = 0; i <= 60; i++) { const p = g.duty + (1 - g.duty) * (i / 60); const t = footTarget(p >= 1 ? .999 : p, g); i ? ctx.lineTo(hx + t.x, hy + t.y) : ctx.moveTo(hx + t.x, hy + t.y); }
+    for (let i = 0; i <= 60; i++) { const p = g.duty + (1 - g.duty) * (i / 60); const t = footTarget(p >= 1 ? .999 : p, g, h); i ? ctx.lineTo(hx + t.x, hy + t.y) : ctx.moveTo(hx + t.x, hy + t.y); }
     ctx.stroke(); ctx.restore();
   }
 
-  function drawLeg(hx, hy, t, kneeSign, near) {
-    const s = ik(t.x, t.y, kneeSign);
+  function drawLeg(hx, hy, t, kneeSign, near, L1 = LEG.L1, L2 = LEG.L2) {
+    const s = ik(t.x, t.y, kneeSign, L1, L2);
     const col = near ? C.near : C.far, lw = near ? 5 : 4;
     // segments
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -124,6 +124,77 @@
     ctx.beginPath(); ctx.moveTo(cx + 8 - 8, cy); ctx.lineTo(cx + 8 + 8, cy); ctx.moveTo(cx + 8, cy - 8); ctx.lineTo(cx + 8, cy + 8); ctx.stroke();
   }
 
+  // ---- biped: the humanoid legs (pelvis + torso block on two legs, as trained in Isaac Lab).
+  // It walks on the same ground as the quadruped, so its stride is chosen to match the quadruped's speed.
+  const BIP = { L1: 66, L2: 62, hipH: 118, pelvis: [36, 22], torso: [30, 44], waist: 4 };
+  // one mode per quadruped gait: walk / brisk walk / run (duty < .5 gives a flight phase)
+  const BIPED = [
+    { name: 'walk',       duty: .62, freq: .55, lift: 16, bob: 2.5, lean: .02, crouch: 0 },
+    { name: 'brisk walk', duty: .55, freq: 1.0,  lift: 22, bob: 4,   lean: .05, crouch: 4 },
+    { name: 'run',        duty: .40, freq: 1.35, lift: 36, bob: 7,   lean: .12, crouch: 12 },
+  ];
+
+  function drawFootPlate(hx, hy, t, near) {
+    const s = ik(t.x, t.y, +1, BIP.L1, BIP.L2);
+    const x = hx + s.fx, y = hy + s.fy;
+    ctx.strokeStyle = near ? C.near : C.far; ctx.lineWidth = near ? 4 : 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x - 6, y + 2); ctx.lineTo(x + 14, y + 2); ctx.stroke();
+  }
+
+  function drawPelvisTorso(cx, hy, lean) {
+    const [pw, ph] = BIP.pelvis, [tw, th] = BIP.torso;
+    ctx.save(); ctx.translate(cx, hy); ctx.rotate(lean);
+    ctx.fillStyle = C.body; ctx.strokeStyle = C.bodyEdge; ctx.lineWidth = 1.5;
+    // pelvis around the hip joints
+    ctx.beginPath(); ctx.roundRect(-pw / 2, -ph / 2 - 4, pw, ph, 7); ctx.fill(); ctx.stroke();
+    // torso block above a short waist
+    const ty = -ph / 2 - 4 - BIP.waist - th;
+    ctx.beginPath(); ctx.roundRect(-tw / 2, ty, tw, th, 8); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = C.bodyEdge; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(0, ty + th); ctx.lineTo(0, -ph / 2 - 4); ctx.stroke();
+    // IMU ticks + camera
+    ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 1;
+    for (let i = 1; i < 4; i++) { const gy = ty + i * th / 4; ctx.beginPath(); ctx.moveTo(-tw / 2 + 6, gy); ctx.lineTo(tw / 2 - 6, gy); ctx.stroke(); }
+    ctx.fillStyle = C.cyan; ctx.beginPath(); ctx.arc(tw / 2 - 5, ty + 8, 2.6, 0, 7); ctx.fill();
+    // com marker
+    ctx.strokeStyle = C.accent; ctx.lineWidth = 1.2;
+    const cy = ty + th * .7;
+    ctx.beginPath(); ctx.arc(0, cy, 4.5, 0, 7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-7, cy); ctx.lineTo(7, cy); ctx.moveTo(0, cy - 7); ctx.lineTo(0, cy + 7); ctx.stroke();
+    ctx.restore();
+    return hy + ty - 10;                                        // y just above the torso, for the command arrow
+  }
+
+  // velocity command arrow, as drawn over each robot in Isaac Lab
+  function drawCmdArrow(cx, y, v) {
+    const len = 22 + Math.min(60, v / 3);
+    ctx.save(); ctx.strokeStyle = C.ok; ctx.fillStyle = C.ok; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - len / 2, y); ctx.lineTo(cx + len / 2 - 6, y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + len / 2, y); ctx.lineTo(cx + len / 2 - 9, y - 5); ctx.lineTo(cx + len / 2 - 9, y + 5); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = .35; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(cx - len / 2, y, 5, 0, 7); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.font = '9px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(95,102,112,.9)'; ctx.textAlign = 'center';
+    ctx.fillText('v cmd', cx, y - 9);
+    ctx.restore();
+  }
+
+  // returns the two foot targets (far, near) so the HUD can report contact
+  function drawBiped(cx, cyc, bg, v) {
+    const g = { stride: v / bg.freq, duty: bg.duty, lift: bg.lift };
+    const hipH = BIP.hipH - bg.crouch;
+    const bob = Math.sin(4 * Math.PI * cyc) * bg.bob;         // two steps per cycle
+    const hy = groundY - hipH + bob;
+    const legs = [{ near: false, ph: .5, dx: 6 }, { near: true, ph: 0, dx: 0 }];
+    const targets = legs.map(l => { const t = footTarget((cyc + l.ph) % 1, g, hipH); t.y -= bob; return t; });
+    // far leg, body, near leg, command arrow
+    drawFootPlate(cx + legs[0].dx, hy, targets[0], false);
+    drawLeg(cx + legs[0].dx, hy, targets[0], +1, false, BIP.L1, BIP.L2);
+    const top = drawPelvisTorso(cx, hy, bg.lean);
+    drawSwingPath(cx, hy, g, C.cyan, hipH);
+    drawFootPlate(cx, hy, targets[1], true);
+    drawLeg(cx, hy, targets[1], +1, true, BIP.L1, BIP.L2);
+    drawCmdArrow(cx, top, v);
+    return targets;
+  }
+
   function drawAxes() {
     ctx.save(); ctx.font = '10px "JetBrains Mono", monospace'; ctx.fillStyle = 'rgba(95,102,112,.8)';
     ctx.textAlign = 'right'; ctx.fillText('x', W - 14, groundY - 6);
@@ -148,7 +219,7 @@
     drawAxes();
 
     const bob = Math.sin(2 * Math.PI * cyc * (g.name === 'trot' ? 2 : 1)) * g.bob;
-    const bodyCx = W / 2 - 10, bodyCy = groundY - standH + bob;
+    const bodyCx = W / 2 - 80, bodyCy = groundY - standH - (bodyH / 2 - 6) + bob;
     const pitch = g.name === 'bound' ? Math.sin(2 * Math.PI * cyc) * .05 : 0;
 
     ctx.save(); ctx.translate(bodyCx, bodyCy); ctx.rotate(-pitch); ctx.translate(-bodyCx, -bodyCy);
@@ -174,9 +245,12 @@
     }
     ctx.restore();
 
+    const bipedCyc = (T * BIPED[gi].freq) % 1;
+    const bt = drawBiped(W - 140, bipedCyc, BIPED[gi], v);
+
     hud.phase.textContent = cyc.toFixed(2);
     hud.v.textContent = (v / 1000).toFixed(2);
-    hud.contact.textContent = [0, 1, 2, 3].map(i => targets[i].contact ? '■' : '□').join(' ');
+    hud.contact.textContent = [0, 1, 2, 3].map(i => targets[i].contact ? '■' : '□').join(' ') + '  ·  ' + [1, 0].map(i => bt[i].contact ? '■' : '□').join(' ');
 
     if (!reduced) requestAnimationFrame(frame);
   }
