@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyoSat1 Orbit Design · Paing Thet Ko</title>
+<meta name="description" content="A 3U CubeSat constellation designed in STK to watch polar sea ice: a Walker Delta of twenty observers, a sun-synchronous relay, and a data pipeline over four years of CryoSat-2 retrievals.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/cubesat-orbit-design/">
+<meta property="og:title" content="MyoSat1 Orbit Design">
+<meta property="og:description" content="Twenty CubeSats, ten planes, and four years of sea ice data.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/cubesat-orbit-design/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/cubesat-orbit-design/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">MyoSat1 Orbit Design</h1>
+    <p class="lede">A CubeSat constellation designed to watch polar ice — twenty observers in ten planes, a relay above them, and four years of real satellite data run through the pipeline it would feed.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/myoset1" target="_blank" rel="noopener">Code and data on GitHub</a>
+      <a href="myosat1-mission-deck.pdf" target="_blank" rel="noopener">Read the mission deck</a>
+      <a href="https://youtu.be/HsZAjDuPyqI" target="_blank" rel="noopener">STK simulation</a>
+    </div>
+    <div class="meta">
+      <span>Mission design study</span>
+      <span>Ansys STK · Python · Flask</span>
+      <span>2025</span>
+    </div>
+    <div class="shot">
+      <img src="media/constellation.webp" width="1300" height="535" fetchpriority="high" decoding="async" alt="An STK 3D view of Earth with twenty CubeSat orbit tracks arching over the pole, the Antarctic target area highlighted in magenta and the mother CubeSat marked above">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>20</b><span>CubeSats in 10 planes</span></div>
+      <div class="stat reveal"><b>97.8°</b><span>inclination, near-polar</span></div>
+      <div class="stat reveal"><b>160 km</b><span>imaging swath</span></div>
+      <div class="stat reveal"><b>873</b><span>days of CryoSat-2 data</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>Most of the interesting questions in a small-satellite mission are decided before anything is built. How many spacecraft, in how many planes, at what inclination, carrying what sensor, revisiting how often — and can a 3U CubeSat actually carry the instrument the science needs?</p>
+      <p>This study answers those for a polar ice mission, then does something the answer sheet does not require: it takes <b>four years of real CryoSat-2 retrievals</b> and builds the analysis pipeline the constellation would exist to feed.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Choosing the indicator.</h2>
+      <p class="sub reveal">Ice answers quickly, and it answers in a place nothing else looks.</p>
+    </div>
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Ice responds to temperature over seasons rather than decades, so a satellite can actually watch it change. It is also awkward to observe: the Arctic covers roughly 20 million km² and the Antarctic 14 million, at latitudes a low-inclination orbit barely touches, through months of darkness and cloud. That geography sets every orbit decision that follows.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The constellation.</h2>
+      <p class="sub reveal">Twenty observers, and one satellite whose job is listening.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The geometry is a <b>Walker Delta</b>, written <code>20/10/1</code>: twenty satellites spread evenly across ten orbital planes, with a phasing offset of one between neighbouring planes. Walker patterns exist because the alternative — placing satellites by hand — does not scale, and because even spacing in both plane and phase is what turns a collection of spacecraft into continuous coverage.</p>
+      <p>Each observer is a 3U CubeSat in a near-circular <b>500 km</b> orbit at <b>97.8°</b> inclination, which is retrograde and very nearly polar — the inclination that both carries the ground track over the ice and makes the orbit sun-synchronous, so every pass sees the same local solar time.</p>
+      <figure>
+        <img src="media/constellation.webp" width="1300" height="535" loading="lazy" decoding="async" alt="The STK scene showing the ten orbital planes crossing over the pole and the Antarctic target region highlighted">
+        <figcaption>The constellation in STK, with the Antarctic target area picked out in magenta.</figcaption>
+      </figure>
+      <p>Above them sits a <b>mother CubeSat</b> in a sun-synchronous orbit at 700 km, and its role is the one that makes the architecture work. Twenty small spacecraft each downlinking raw imagery would spend their power budget on radio and their passes on ground-station geometry. Instead the observers relay to the mother, which aggregates, pre-processes and prioritises before anything reaches the ground.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Fitting the instrument.</h2>
+      <p class="sub reveal">A 3U chassis is three litres and a power budget.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The imager is a <b>Gecko</b>, chosen because it fits in <b>1U</b> and leaves the other two for bus, power and radio. Its 20° field of view gives a <b>160 km swath from 500 km</b> — wide enough to cross a useful slice of the Arctic in a single pass, narrow enough to keep ground resolution meaningful. Field of view, altitude, swath and revisit time are one coupled decision, and this is the trade that sets the rest.</p>
+      <p>Optical imaging fails at the poles through polar night and cloud, so the study also sizes <b>synthetic aperture radar</b>, which brings its own illumination. X-band buys resolution, C-band trades some of it for coverage and penetration; both are demonstrated on 3U platforms.</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Onboard</div>
+      <h3>Deciding what is worth downlinking.</h3>
+      <p>Downlink, not storage, is the binding constraint. An image of solid cloud costs exactly as much to transmit as a clear view of an ice margin and is worth nothing, so the mother CubeSat runs <b>cloud detection and image-quality scoring</b> before deciding what to send. The model is trained on Landsat 8 surface reflectance, where each scene already carries a cloud score — a way to build the training set from an existing mission rather than waiting for your own to fly.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The data it would feed.</h2>
+      <p class="sub reveal">Built on an existing mission, so the pipeline is real.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Rather than stop at the design, the project pulls <b>873 daily sea-ice thickness grids</b> from the NSIDC CryoSat-2 Level-4 product, covering September 2020 to April 2024. Each file is a 448×304 polar stereographic grid at 25 km resolution, carrying thickness, freeboard, snow depth and ice concentration.</p>
+      <p>Each day is masked for the fill values and rendered onto an orthographic projection of the Arctic. Put the first and last day of a winter beside each other and the season is obvious — a thin patch north of Canada in October becomes a basin-wide sheet by the end of April.</p>
+      <figure>
+        <img src="media/icemaps.webp" width="1500" height="746" loading="lazy" decoding="async" alt="Two Arctic maps of sea ice thickness, October 2020 showing a small thin patch and April 2021 showing thick ice across the whole basin">
+        <figcaption>One winter, from the same pipeline: 1 October 2020 and 30 April 2021.</figcaption>
+      </figure>
+      <p>A Flask service sits on top of it. Ask for a date range and it opens every matching grid, masks the invalid cells, reduces each day to a mean thickness, fits a least-squares line through the series, and returns the observations and the trend as JSON for a browser front end to plot.</p>
+      <figure>
+        <img src="media/seasons.webp" width="1500" height="902" loading="lazy" decoding="async" alt="Four plots of mean Arctic sea ice thickness across the winters of 2021, 2022, 2023 and 2024, each rising from about 1.4 m in October to around 2 m by April">
+        <figcaption>Four winters, each from October to April. Every one of them climbs.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Mission summary.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>Target</dt><dd>Arctic and Antarctic ice — extent, thickness and volume</dd></div>
+      <div class="row"><dt>Constellation</dt><dd>Walker Delta <code>20/10/1</code> — 20 satellites, 10 planes, phasing 1</dd></div>
+      <div class="row"><dt>Observers</dt><dd>3U CubeSats, 500&nbsp;km circular, 97.8° inclination, e = 0, RAAN 0</dd></div>
+      <div class="row"><dt>Relay</dt><dd>Mother CubeSat in sun-synchronous orbit at 700&nbsp;km, same inclination</dd></div>
+      <div class="row"><dt>Imager</dt><dd>Gecko, 1U, 20° field of view, 160&nbsp;km swath at 500&nbsp;km</dd></div>
+      <div class="row"><dt>Radar</dt><dd>X-band (8–12&nbsp;GHz) and C-band (4–8&nbsp;GHz) SAR both sized for 3U</dd></div>
+      <div class="row"><dt>Onboard</dt><dd>Cloud detection and image quality scoring, trained on Landsat 8 surface reflectance</dd></div>
+      <div class="row"><dt>Simulation</dt><dd>Ansys STK — orbits, ground tracks and target-area access</dd></div>
+      <div class="row"><dt>Dataset</dt><dd>NSIDC CryoSat-2 Level-4, 873 daily grids, 448×304 at 25&nbsp;km, Sep 2020 – Apr 2024</dd></div>
+      <div class="row"><dt>Analysis</dt><dd>xarray and cartopy for the maps, Flask and SciPy for the trend service</dd></div>
+    </dl>
+    <div class="prose reveal" style="margin-top:56px">
+      <p style="font-size:.95rem">Built by a team of seven as MyoSat1. The <a href="myosat1-mission-deck.pdf" target="_blank" rel="noopener" style="color:var(--blue)">mission deck</a> is published here with my teammates' names and student numbers removed; the STK simulation video is by Thura Zaw. Sea ice data courtesy of the National Snow and Ice Data Center.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the code, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/myoset1" target="_blank" rel="noopener">github.com/ptkoo/myoset1</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>
