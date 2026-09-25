@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3-DOF Robot Arm · Paing Thet Ko</title>
+<meta name="description" content="A three-jointed pick-and-place arm on an Arduino Mega and a RAMPS 1.4 printer shield, homed against its own limit switches and driven from a phone over Bluetooth.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/3dof-robot-arm/">
+<meta property="og:title" content="3-DOF Robot Arm">
+<meta property="og:description" content="A printer board, three steppers, and seven one-byte commands from a phone.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/3dof-robot-arm/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/3dof-robot-arm/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">3-DOF Robot Arm</h1>
+    <p class="lede">Three stepper joints and a gripper, running pick-and-place from a phone — on a 3D-printer board that never prints anything.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/3DOF_Robotic_arm" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="#control">Watch it run</a>
+    </div>
+    <div class="meta">
+      <span>Final project</span>
+      <span>Arduino Mega · RAMPS 1.4</span>
+      <span>2023 — 2024</span>
+    </div>
+    <div class="shot">
+      <img src="media/arm.webp" width="960" height="720" fetchpriority="high" decoding="async" alt="The three-jointed arm on a cutting mat, belt-driven with stepper motors at each joint and a gripper at the end, with coloured cubes laid out in front of it">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>3</b><span>stepper joints, plus a gripper</span></div>
+      <div class="stat reveal"><b>40</b><span>microsteps per degree</span></div>
+      <div class="stat reveal"><b>800 µs</b><span>per step</span></div>
+      <div class="stat reveal"><b>7</b><span>commands from the phone</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>The controller is a <b>RAMPS 1.4</b> — the shield that sits on an Arduino Mega and runs a 3D printer. It is an unusually good fit for a small arm: four stepper driver sockets, end-stop inputs with pull-ups already wired, and an enable line per axis. The printer firmware is gone; what is left is 488 lines of sketch that treat the three axes as three revolute joints.</p>
+      <p>No inverse kinematics, no trajectory planner. This arm knows where it is because it counts steps from a switch it has touched, and it knows where to go because somebody wrote the angles down.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Finding zero.</h2>
+      <p class="sub reveal">A stepper has no idea where it is until it hits something.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Steppers are open loop. Power one up and it knows nothing — not its angle, not even which way is forward. Every absolute move in the sketch depends on fixing that once, at boot, and then never losing count.</p>
+      <p>So <code>setup()</code> does two things in order. <b>Calibrate</b> drives each joint, one at a time, toward its limit switch, stepping until the switch reads low. That is a known physical position, but it is the <em>end stop</em>, not a useful pose — the arm is folded against itself.</p>
+      <p>So <b>home</b> then walks a fixed number of steps back off the stop: <code>1680</code> steps on the first joint, <code>720</code> on the second, <code>3600</code> on the base. At 40 steps per degree that is 42°, 18° and 90°. Those counts are not derived from anything; they were measured on the machine. With the arm standing where it should, the angle bookkeeping is zeroed, and from that instant the sketch tracks every joint in degrees.</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Moving</div>
+      <h3>Absolute targets, relative moves.</h3>
+      <p>Every motion goes through one function, <code>pick(angle, joint)</code>, and the first thing it does is subtract. The caller names an absolute target; the function turns it into a delta against the remembered position, takes the sign as the direction pin, and converts the magnitude into steps — <b>40 microsteps per degree</b>, from driving the resolution pins for sixteenth-stepping.</p>
+      <p>Each step is a pulse and a wait: 100&nbsp;µs low, 700&nbsp;µs high. Eight hundred microseconds a step is deliberately slow — a printer moves a light hotend, while this is swinging an arm, and a stepper that skips has silently lied about its position with no encoder to catch it.</p>
+      <p>The limit switch is read again inside the stepping loop, so a joint that reaches its stop mid-move stops stepping rather than grinding. Once the move ends the remembered angle is updated, and that running total is the arm's entire sense of where it is.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The choreography.</h2>
+      <p class="sub reveal">No planner — a list of angles, interleaved by hand.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Four routines make up the whole repertoire: two that reach out to a pick station, two that put something down. Each is a plain list of <code>pick()</code> calls, and the interesting part is the order they are written in.</p>
+      <p>Reaching to the first station could be two commands — swing joint Z to 85°, then joint X to 85°. Instead it is six, alternating: <code>Z30, X30, Z60, X60, Z85, X85</code>. Because each call blocks until its joint arrives, alternating them in thirds makes the two joints take turns in small increments, and the end effector <b>staircases along the diagonal</b> instead of swinging out in one axis and then the other. It is linear interpolation done by hand, at a resolution of three.</p>
+      <figure>
+        <img src="media/path.webp" width="1500" height="658" loading="lazy" decoding="async" alt="Two plots: the joint-space staircase of one reach climbing along the diagonal, and a step chart of the place sequence showing the arm retract, the base rotate, then the arm extend again">
+        <figcaption>Left, one reach in joint space. Right, a place command: fully retract, rotate the base, then reach again.</figcaption>
+      </figure>
+      <p>Placing is the same idea with a safety property built in. The sequence winds both joints all the way back to zero <em>before</em> the base turns, pauses half a second, rotates 90°, and only then reaches out again. The arm is never long and swinging sideways at the same time — which is exactly the move that would sweep everything off the table.</p>
+    </div>
+  </div>
+</section>
+
+<section id="control">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">One byte per button.</h2>
+      <p class="sub reveal">The whole protocol fits in seven characters.</p>
+      <div class="video reveal">
+        <iframe src="https://www.youtube-nocookie.com/embed/U_skwRF6WCg" title="3-DOF robot arm running pick and place under Bluetooth control from a phone" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="prose block reveal" style="margin-top:56px">
+      <p>A Bluetooth module sits on the Mega's serial port at 9600 baud, and a phone app sends <b>a single character per button press</b>. The sketch reads one byte a loop and drops it into a switch statement. There is no parser, no framing, no acknowledgement — and at one keystroke per deliberate press, none of that is missed.</p>
+      <p>It is worth contrasting with the <a href="../gesture-controlled-hand/" style="color:var(--blue)">gesture hand</a>, which streams five bits continuously and therefore needs a start marker and a fixed packet length to stay in sync. Here the commands are rare and idempotent, so the protocol can afford to be nothing at all.</p>
+      <figure>
+        <div class="figs">
+          <img src="media/commands.webp" width="1200" height="775" loading="lazy" decoding="async" alt="A table mapping each phone button to the single character it sends and the routine that character triggers in the sketch">
+          <img src="media/app.webp" width="300" height="530" loading="lazy" decoding="async" alt="The phone app: connect and disconnect buttons, a home button, pick buttons for two colours, grab, place buttons, and release">
+        </div>
+        <figcaption>Every button on the app, and the routine it reaches.</figcaption>
+      </figure>
+      <p>Note what <code>0</code> does: it re-runs calibration and homing. Because the arm's position is a counter and nothing else, a skipped step or a nudge leaves it quietly wrong — and the fix is to go and touch the switches again. That button is the recovery path for the one failure this design cannot detect.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The gripper.</h2>
+      <p class="sub reveal">Four wires, eight phases, no driver chip.</p>
+    </div>
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The three joints have proper stepper drivers in the RAMPS sockets. The gripper does not — it is a <b>28BYJ-48</b>, the small geared unipolar stepper, and the sketch drives its four coils directly by writing the eight-phase half-step sequence out one state at a time.</p>
+      <p>Half-stepping matters here: alternating between one coil energised and two gives twice the resolution of a full-step table and a good deal less vibration, which on a gripper is the difference between holding a cube and knocking it over. Closing runs the table forward, opening runs the same table backward, and both end by dropping all four pins low so the coils are not left heating up under a holding current.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Specification.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>Controller</dt><dd>Arduino Mega 2560 with a RAMPS 1.4 shield</dd></div>
+      <div class="row"><dt>Joints</dt><dd>3 steppers in the X, Y and Z driver sockets, one limit switch each on <code>INPUT_PULLUP</code></dd></div>
+      <div class="row"><dt>Resolution</dt><dd>Sixteenth-stepping, 40 microsteps per degree</dd></div>
+      <div class="row"><dt>Step timing</dt><dd>100&nbsp;µs pulse, 700&nbsp;µs between steps</dd></div>
+      <div class="row"><dt>Homing</dt><dd>Sweep each joint to its end stop, then a fixed offset of 1680 / 720 / 3600 steps</dd></div>
+      <div class="row"><dt>Position</dt><dd>Open loop; a running total in degrees per joint, reset at home</dd></div>
+      <div class="row"><dt>Gripper</dt><dd>28BYJ-48 unipolar stepper, eight-phase half-step sequence bit-banged on four pins</dd></div>
+      <div class="row"><dt>Link</dt><dd>Bluetooth serial at 9600 baud, one character per command</dd></div>
+      <div class="row"><dt>Commands</dt><dd><code>0</code> home · <code>1</code> <code>2</code> pick · <code>3</code> <code>4</code> place · <code>A</code> grip · <code>B</code> release</dd></div>
+      <div class="row"><dt>Motion</dt><dd>Hand-authored joint-space waypoints, joints interleaved to approximate a straight path</dd></div>
+    </dl>
+    <div class="prose reveal" style="margin-top:56px">
+      <p style="font-size:.95rem">Written by Paing Thet Ko, debugged by Kent, sponsored by Thura Zaw — as credited in the sketch header.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the code, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/3DOF_Robotic_arm" target="_blank" rel="noopener">github.com/ptkoo/3DOF_Robotic_arm</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>
