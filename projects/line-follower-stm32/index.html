@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STM32 Line Follower · Paing Thet Ko</title>
+<meta name="description" content="A line-following robot on an STM32F411: eight calibrated reflectance sensors read by DMA, a 200 Hz PID loop, 10 kHz motor PWM, and a recovery move for when the line disappears.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/line-follower-stm32/">
+<meta property="og:title" content="STM32 Line Follower">
+<meta property="og:description" content="Eight sensors, three clocks, and one number that says where the line is.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/line-follower-stm32/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/line-follower-stm32/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">STM32 Line Follower</h1>
+    <p class="lede">Eight reflectance sensors, three clocks running at once, and one number that says where the line is.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/lineFollowerSTM32" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="#track">Watch it run</a>
+    </div>
+    <div class="meta">
+      <span>Embedded control</span>
+      <span>STM32F411 · HAL · DMA</span>
+      <span>2023</span>
+    </div>
+    <div class="shot">
+      <img src="media/array.webp" width="1500" height="712" fetchpriority="high" decoding="async" alt="Diagram of the eight-sensor array over a black line: each sensor shaded by its reading, its weight printed beneath, and the resulting position marked on a scale from minus fifty to plus fifty">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>200 Hz</b><span>control loop</span></div>
+      <div class="stat reveal"><b>8</b><span>calibrated sensors</span></div>
+      <div class="stat reveal"><b>10 kHz</b><span>motor PWM</span></div>
+      <div class="stat reveal"><b>80 MHz</b><span>STM32F411</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>A line follower is a deceptively good exercise, because the hard parts are not the ones you expect. The PID is textbook. What decides whether the robot is quick or twitchy is everything around it: how the sensors are calibrated, how eight readings collapse into one number, how the sampling is kept away from the control loop, and what happens in the moment the line is not under the robot at all.</p>
+      <p>This one runs bare-metal on an <b>STM32F411</b> at 80&nbsp;MHz with the HAL, laid out in CubeIDE. No RTOS — the structure comes from three peripherals running at three different rates and staying out of each other's way.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Calibrating the eye.</h2>
+      <p class="sub reveal">No two sensors agree, and neither does the room.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>An infrared reflectance sensor returns a voltage, and that voltage means nothing on its own. Each one has a different LED brightness and a different phototransistor gain; the tape reflects differently from the paper; and the ambient light in the room shifts the whole set. A fixed threshold is a promise the hardware cannot keep.</p>
+      <p>So the robot is calibrated before every run. Hold a button down and sweep the array back and forth across the line, and the firmware records a <b>running minimum and maximum per channel</b> — the minima start at 4095 and the maxima at 0, so the first reading claims both. A second button throws the calibration away and starts again.</p>
+      <p>After that every reading is mapped onto its own measured span:</p>
+      <ul>
+        <li><code>norm = 1 − (raw − min) / (max − min)</code></li>
+      </ul>
+      <p>which puts every sensor on the same <b>0 to 1</b> scale — 1 meaning fully over the line — regardless of what raw numbers it happens to produce. The inversion is there because the line is dark, so the least reflected light means the most line.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Where is the line?</h2>
+      <p class="sub reveal">Eight numbers in, one number out.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The controller needs a single error signal, so the eight normalised readings are collapsed into one by weighting each sensor by its physical offset across the array — <code>−50</code> at the far left through to <code>+50</code> at the far right, evenly spaced by 14.28 — and summing.</p>
+      <p>The useful property is that the answer is <b>continuous</b>. If the line sits between two sensors, both light up partially and the weighted sum lands between their two offsets, so the robot can resolve a position far finer than the sensor spacing. A simple "which sensor is darkest" scheme would quantise the error to eight values and make the steering step rather than flow.</p>
+      <figure>
+        <img src="media/array.webp" width="1500" height="712" loading="lazy" decoding="async" alt="The sensor array with the line falling between two sensors, both partially lit, and the position landing between their two offsets">
+        <figcaption>The line between two sensors. Both read partially, and the result lands between them.</figcaption>
+      </figure>
+      <p>One detail betrays the hardware: the weights are not applied in channel order. The ADC ranks are wired to sensors that are not in physical sequence, so the mapping from channel to offset is scrambled in the source — the kind of line that looks like a typo until you look at the board.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Three clocks.</h2>
+      <p class="sub reveal">Sample fast, decide slowly, drive faster.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The part I like most about this firmware is that the three jobs run at three rates, and none of them waits for another.</p>
+      <p>The <b>ADC free-runs</b>. It is set to scan all eight channels continuously and hand the results to <b>DMA</b>, which drops them into a buffer in memory without involving the CPU at all. At 3-cycle sampling on a 20&nbsp;MHz ADC clock a full sweep of eight takes about six microseconds, so the buffer is refreshed thousands of times between control ticks and the loop simply reads the freshest values whenever it wants them. No start, no poll, no blocking.</p>
+      <p>The <b>control loop</b> is a timer interrupt at 200&nbsp;Hz — normalise, compute position, run the PID, write two duty cycles, done. Five milliseconds is loose for an M4 at 80&nbsp;MHz, which is the point: the deadline is never in question.</p>
+      <p>The <b>PWM</b> runs at 10&nbsp;kHz, above hearing, so the motors do not whine. And the timer is set up with a quiet piece of arithmetic: prescale 80&nbsp;MHz down to exactly 1&nbsp;MHz and set the period to 100, and the counter now ticks in microseconds with a span of exactly one hundred. <b>The compare register is the duty cycle in percent</b> — the controller's output goes straight into the register with no scaling at all.</p>
+      <figure>
+        <img src="media/clocks.webp" width="1300" height="553" loading="lazy" decoding="async" alt="Three horizontal rate axes on a logarithmic scale showing the 200 Hz control loop, the 10 kHz PWM and the roughly 170 kHz ADC sweep rate">
+        <figcaption>Three rates, three decades apart, sharing one microcontroller.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Steering, and losing the line.</h2>
+      <p class="sub reveal">The PID is the easy half.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>With a position and a setpoint of zero, the rest is a standard PID — proportional 2, integral 0.01, derivative 0.32, tuned on the track rather than derived. Its output becomes a differential: a base speed plus the correction on one wheel, minus it on the other, each clamped so neither can be commanded past full or below a standstill. Each motor gets two compare channels, one per direction of its H-bridge, so reversing a wheel is a matter of which channel carries the duty.</p>
+      <p>The interesting case is the one PID cannot handle. Come into a hairpin too fast and the line leaves the array entirely — every sensor reads white, the error goes to zero, and a naive controller drives happily straight on into the wall, perfectly confident it is centred.</p>
+      <p>So the firmware keeps the <b>previous frame's readings</b> for the left and right thirds of the array. When the middle sensors all fall below 0.4, the robot stops following and starts hunting: it spins in place toward whichever side last saw the line, at 90&nbsp;% duty, until the line comes back under the array. One frame of memory is all it takes to turn a crash into a recovery.</p>
+      <figure>
+        <img src="media/recovery.webp" width="1300" height="565" loading="lazy" decoding="async" alt="A two-state diagram: following the line with a PID differential, and a lost state that spins toward the side the line was last seen at 90 percent duty">
+        <figcaption>Two states. The previous frame is kept for exactly one purpose.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="track">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">On the track.</h2>
+      <p class="sub reveal">Where the tuning gets settled.</p>
+      <div class="video reveal">
+        <iframe src="https://www.youtube-nocookie.com/embed/gE_28TehIo8" title="The STM32 line follower running a timed course" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+    <div class="prose block reveal" style="margin-top:56px">
+      <p>The serial port carries the position estimate out to a laptop while the robot drives, which is how the gains were found — watching the number oscillate, ring or lag on a real corner tells you far more than reasoning about it does. It is also the one piece of the loop that costs real time, so it is there for tuning and not for the run.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Specification.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>MCU</dt><dd>STM32F411RE at 80&nbsp;MHz, HSI with PLL, STM32CubeIDE and the HAL</dd></div>
+      <div class="row"><dt>Sensing</dt><dd>8 reflectance channels on ADC1, 12-bit, scan mode, 3-cycle sampling</dd></div>
+      <div class="row"><dt>Transfer</dt><dd>DMA in circular mode, continuous requests, no CPU involvement</dd></div>
+      <div class="row"><dt>Calibration</dt><dd>Per-channel min and max captured on a button-held sweep, reset on a second button</dd></div>
+      <div class="row"><dt>Normalisation</dt><dd><code>1 − (raw − min) / (max − min)</code>, giving 0 to 1 per sensor</dd></div>
+      <div class="row"><dt>Position</dt><dd>Weighted sum of the eight readings, offsets <code>±50</code> to <code>±7.16</code>, clamped to <code>±50</code></dd></div>
+      <div class="row"><dt>Control</dt><dd>PID on TIM10 at 200&nbsp;Hz — <code>kp 2</code>, <code>ki 0.01</code>, <code>kd 0.32</code>, setpoint 0</dd></div>
+      <div class="row"><dt>Drive</dt><dd>TIM3, four PWM channels at 10&nbsp;kHz, compare register equal to duty in percent</dd></div>
+      <div class="row"><dt>Recovery</dt><dd>Spin toward the last-seen side at 90&nbsp;% when all inner readings fall below 0.4</dd></div>
+      <div class="row"><dt>Telemetry</dt><dd>USART2 at 115200, position streamed live for gain tuning</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="band center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the code, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/lineFollowerSTM32" target="_blank" rel="noopener">github.com/ptkoo/lineFollowerSTM32</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>
