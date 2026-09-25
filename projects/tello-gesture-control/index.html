@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tello Gesture Control · Paing Thet Ko</title>
+<meta name="description" content="Flying a DJI Tello by hand: MediaPipe landmarks reduced to five bits, looked up against eleven gestures, and sent to the drone as SDK commands — including a photo and a 360° orbit it records itself.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/tello-gesture-control/">
+<meta property="og:title" content="Tello Gesture Control">
+<meta property="og:description" content="Eleven hand signs, one drone, no controller.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/tello-gesture-control/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/tello-gesture-control/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">Tello Gesture Control</h1>
+    <p class="lede">Eleven hand signs fly a drone — take off, move, flip, and tell it to photograph the room or film its own pirouette.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/telloDroneHandGestureControl" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="#flying">Watch it fly</a>
+    </div>
+    <div class="meta">
+      <span>Computer vision</span>
+      <span>Python, MediaPipe, djitellopy</span>
+      <span>2023</span>
+    </div>
+    <div class="shot">
+      <img src="media/gestures.webp" width="1600" height="714" fetchpriority="high" decoding="async" alt="A two-column table of eleven hand gestures, each shown as five dots for the fingers with its five-bit code and the drone command it triggers">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>11</b><span>gestures mapped</span></div>
+      <div class="stat reveal"><b>21</b><span>landmarks per hand</span></div>
+      <div class="stat reveal"><b>2</b><span>live camera feeds</span></div>
+      <div class="stat reveal"><b>5</b><span>bits per command</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>A DJI Tello takes its orders over Wi-Fi as short text commands — <code>takeoff</code>, <code>forward 150</code>, <code>flip f</code>. Anything that can produce those strings can fly it. This project makes the producer a hand.</p>
+      <p>What makes it more than a demo is that the recogniser was not written for it. It came from <a href="../gesture-controlled-hand/" style="color:var(--blue)">the robotic hand</a> — the same <code>fingersUpModule</code>, the same landmark comparison, the same five bits — lifted out as a module and pointed at a different machine.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The same five bits.</h2>
+      <p class="sub reveal">A mirror in one project, a lookup table in this one.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>MediaPipe gives 21 landmarks, and comparing each fingertip against the joint two links down collapses them to one bit per finger. On the robotic hand those five bits went straight to five servos — the mapping was the identity, because the output <em>was</em> a hand.</p>
+      <p>A drone has no fingers. So the same five bits become an <b>address</b> instead: a pose is looked up in a table of eleven patterns, and whatever sits at that entry is flown. Five bits can name 32 distinct poses; eleven of them are spoken for, and the rest do nothing at all, which is exactly the safety margin you want when the output is a spinning object in the air.</p>
+      <p>The vocabulary reads sensibly in the hand, too. A closed fist launches, an open palm lands, and the fingers in between are directions.</p>
+      <figure>
+        <img src="media/gestures.webp" width="1600" height="714" loading="lazy" decoding="async" alt="The full gesture table: fist for takeoff, open palm to land, single fingers for up and down, and four-finger patterns for the horizontal moves">
+        <figcaption>Eleven of the thirty-two poses are assigned. Everything else is deliberately inert.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Sideways</div>
+      <h3>Strafing the long way round.</h3>
+      <p>Two of the commands are compound. Moving right is not one instruction but three — <b>yaw 90°, fly forward 150 cm, yaw back 90°</b> — and moving left is its mirror. The drone ends up translated sideways and pointing the way it started, having taken the scenic route to get there.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Two cameras, one loop.</h2>
+      <p class="sub reveal">One watches you; the other watches the room.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Every pass of the loop pulls two frames. The laptop webcam supplies the frame the hand detector works on, drawn with its landmarks and the battery percentage read live from the drone. The Tello's own forward camera supplies the second, streamed over Wi-Fi and shown in its own window. Both get the status text painted on, so whichever one you are looking at tells you what the drone just understood.</p>
+      <p>That second feed is not decoration. Flying by gesture means standing still and facing your laptop, so the drone's view is the only way to see what it is actually pointed at — and it is the frame the capture commands save.</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Latching</div>
+      <h3>One gesture, one command.</h3>
+      <p>Gestures are held, not tapped. At webcam frame rate a raised palm is not one event but thirty a second, and thirty <code>land</code> commands would be at best redundant and at worst a fight. So every command carries a flag that is cleared the moment it fires, and a pose that is still there on the next frame does nothing.</p>
+      <p>As written those flags are never re-armed, so each command is good for one use per session — which is fine for a scripted demonstration and is the first thing to change for real flying. The natural fix is to re-arm a command once the hand has left its pose, which turns the flag into a proper edge detector.</p>
+    </div>
+  </div>
+</section>
+
+<section id="flying">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Flying it.</h2>
+      <p class="sub reveal">Indoors, on one battery, with nothing in your hands.</p>
+      <div class="video reveal">
+        <iframe src="https://www.youtube-nocookie.com/embed/lnzAefXNuVE" title="Flying a DJI Tello drone using hand gestures read from a webcam" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+    <div class="prose block reveal" style="margin-top:56px">
+      <p>The SDK calls block until the drone reports the move finished, so the preview window holds still for a second or two on every command while the aircraft goes and does it. It makes the loop feel like a conversation with pauses rather than a continuous controller — appropriate, given that each gesture is a whole manoeuvre rather than a stick deflection.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">What it brought back.</h2>
+      <p class="sub reveal">Two of the gestures make the drone produce a file.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Index and middle up — the same sign you would make asking someone to take your picture — saves the current frame from the drone's camera to disk. This is that file, exactly as it came off the aircraft, committed in the repository alongside the code that took it.</p>
+      <figure>
+        <img src="media/photo.webp" width="640" height="375" loading="lazy" decoding="async" alt="A still from the drone's camera looking across a room at two bar stools and a counter, taken from hovering height" style="max-width:520px;margin:0 auto">
+        <figcaption>Taken on a hand signal, from wherever the drone happened to be hovering.</figcaption>
+      </figure>
+      <p>The index finger alone is the more interesting one. It spawns a recording thread that writes the drone's video stream to a file at 30 frames a second, then — on the main thread — commands a full <b>360° rotation</b>. When the rotation returns, the flag drops and the thread is joined. The result is a self-shot panorama of the room, and the length of the clip is simply however long the drone took to turn around.</p>
+      <figure>
+        <img src="media/orbit.webp" width="1500" height="750" loading="lazy" decoding="async" alt="Six frames from the drone's own recording, showing the room sweeping past as the aircraft rotates a full turn on the spot">
+        <figcaption>Six frames from the drone's own footage of its 360° turn. Five seconds, start to finish.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Specification.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>Aircraft</dt><dd>DJI Tello over Wi-Fi, driven with <code>djitellopy</code></dd></div>
+      <div class="row"><dt>Perception</dt><dd>MediaPipe Hands, 21 landmarks, up to two hands, 0.5 detection confidence</dd></div>
+      <div class="row"><dt>Gesture rule</dt><dd>Fingertip against the joint two links down; thumb on x with handedness applied</dd></div>
+      <div class="row"><dt>Vocabulary</dt><dd>11 five-bit patterns; the other 21 poses are unassigned and inert</dd></div>
+      <div class="row"><dt>Video in</dt><dd>Laptop webcam for the hand, Tello stream resized to 640×480 for the drone's view</dd></div>
+      <div class="row"><dt>Overlay</dt><dd>Landmarks, live battery percentage, and the last command drawn on both feeds</dd></div>
+      <div class="row"><dt>Debounce</dt><dd>A latch per command, cleared on fire so a held pose triggers once</dd></div>
+      <div class="row"><dt>Strafe</dt><dd>Yaw ±90°, forward 150&nbsp;cm, yaw ∓90° — a translation made of rotations</dd></div>
+      <div class="row"><dt>Capture</dt><dd>Still written with OpenCV; video written by a worker thread at 30&nbsp;fps during a 360° turn</dd></div>
+      <div class="row"><dt>Shared code</dt><dd><code>fingersUpModule.py</code>, the detector factored out of the robotic hand project</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="band center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the code, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/telloDroneHandGestureControl" target="_blank" rel="noopener">github.com/ptkoo/telloDroneHandGestureControl</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>
