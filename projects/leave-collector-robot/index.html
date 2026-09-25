@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Leave Collector Robot · Paing Thet Ko</title>
+<meta name="description" content="A rocker-bogie rover that vacuums leaves off grass, soil and pavement and navigates by dead reckoning: wheel encoders, a Kalman-fused IMU, Ackermann steering and a fine-tuned SAM for obstacle avoidance.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/leave-collector-robot/">
+<meta property="og:title" content="Leave Collector Robot">
+<meta property="og:description" content="A rocker-bogie rover that vacuums leaves and finds its way by dead reckoning.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/leave-collector-robot/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/leave-collector-robot/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">Leave Collector Robot</h1>
+    <p class="lede">A rocker-bogie rover that vacuums leaves off grass, soil and pavement — and knows where it is without a map, a beacon or GPS.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/leave_collector_robot" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="#field-test">Watch it drive</a>
+      <a href="leave-collector-robot-report.pdf" target="_blank" rel="noopener">Read the report</a>
+    </div>
+    <div class="meta">
+      <span>KMITL · School of Engineering</span>
+      <span>Feedback Control (01416304)</span>
+      <span>2023 — 2024</span>
+    </div>
+    <div class="shot">
+      <img src="media/rover.webp" width="1600" height="900" fetchpriority="high" decoding="async" alt="Side view of the rover on grass: a t-slot aluminium frame on a white PVC rocker-bogie suspension, carrying a mesh-lined collection box and a curved vacuum duct">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>6</b><span>encoder-driven wheels</span></div>
+      <div class="stat reveal"><b>19,622</b><span>pulses per wheel turn</span></div>
+      <div class="stat reveal"><b>±2°</b><span>yaw error after fusion</span></div>
+      <div class="stat reveal"><b>10</b><span>engineers on the team</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>The brief was a groundskeeping robot: drive itself across a university lawn, pick up fallen leaves, and come back. That is three hard problems stacked on top of each other — a chassis that stays level on rough ground, a collector that works on grass and on concrete, and a way for the robot to know where it is while doing both.</p>
+      <p>We started with <b>GPS fused with an accelerometer</b>. The receivers we could afford were not precise enough for a lawn-sized course, so we dropped satellites entirely and switched to <b>dead reckoning</b>: count the wheels, track the heading, integrate. Everything downstream followed from that decision.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The build.</h2>
+      <p class="sub reveal">A Mars rover suspension, a vacuum, and a steering rack that does not scrub.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <div class="eyebrow">Suspension</div>
+      <h3>Rocker-bogie, in PVC.</h3>
+      <p>The chassis copies the Mars Perseverance rover: a <b>rocker-bogie</b> linkage that keeps all six wheels loaded and the body level while a single wheel climbs a root or a kerb. We built it from 20&nbsp;mm PVC pipe and 3D-printed PLA joints to keep the mass down, hung off a 20×20&nbsp;mm t-slot aluminium frame with acrylic decks, and added a differential bar across the top so the two rockers balance against each other.</p>
+      <figure>
+        <img src="media/suspension.webp" width="1070" height="366" loading="lazy" decoding="async" alt="CAD view of the rocker-bogie linkage: three wheels per side joined by a rocker arm and a bogie arm">
+        <figcaption>The rocker-bogie linkage. One rocker, one bogie, three wheels per side.</figcaption>
+      </figure>
+      <figure>
+        <div class="figs">
+          <img src="media/chassis.webp" width="959" height="710" loading="lazy" decoding="async" alt="The assembled t-slot aluminium chassis on the workshop floor with the differential bar fitted">
+          <img src="media/rover-static.webp" width="758" height="729" loading="lazy" decoding="async" alt="The finished robot standing on grass, showing the sealed collection box and the vacuum duct">
+        </div>
+        <figcaption>Frame and differential bar during assembly; the finished rover on the lawn.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Collection</div>
+      <h3>A centrifugal impeller, not a brush.</h3>
+      <p>Brushes and paddles each assume a surface. We wanted one mechanism that worked on <b>side road, soil and grass</b> alike, so we went with suction: a 3D-printed centrifugal impeller on an RS775 motor, chosen over an axial fan for its much higher static pressure.</p>
+      <p>Leaves travel up a duct into a sealed acrylic box. Inside the box a <b>net basket</b> catches them while letting air pass, so the impeller never sees debris and the basket lifts straight out to empty. Sealing the box mattered more than we expected — every leak costs suction.</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Steering</div>
+      <h3>Ackermann geometry on four servos.</h3>
+      <p>Four MG996R servos steer the corner wheels to <b>Ackermann geometry</b>, so the inner and outer wheels trace concentric arcs instead of fighting each other and scrubbing the tyres. A four-bar linkage was impractical at this scale, so each wheel gets its own servo angle computed from the turning radius.</p>
+      <p>For a body of length <code>l</code> and width <code>w</code> turning through <code>θ</code>, the turn radius is <code>R = (l/2) / tan θ</code>, and the inner and outer wheels take <code>arctan((l/2)/(R ∓ w/2))</code>. The same radii set a PWM gain per side, <code>R_in/(R_in+R_out)</code>, so the inner wheels also turn <em>slower</em> — which is what actually makes the turn smooth.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Knowing where it is.</h2>
+      <p class="sub reveal">Count the wheels, trust the heading — but only after you have earned the heading.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <div class="eyebrow">Dead reckoning</div>
+      <h3>Distance from the encoders.</h3>
+      <p>Each of the six GB37 gearmotors carries a quadrature encoder. At 448 pulses per encoder revolution through a 43.8:1 gearbox, one wheel revolution is <b>19,622.4 pulses</b>, and one wheel revolution moves the robot <b>0.377&nbsp;m</b> along the ground. Integrating pulses against the current heading gives position relative to the start — no map, no beacons.</p>
+      <p>That only works if the heading is good. Raw heading was the weak link, so most of the control work went into the two sensors that produce it.</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Calibration</div>
+      <h3>Hard iron, soft iron, and a drifting gyro.</h3>
+      <p>A magnetometer sitting on a robot full of motors and current-carrying coils does not measure the Earth's field. <b>Hard-iron</b> sources bias the readings off-centre; <b>soft-iron</b> sources stretch the response into an ellipse. Spinning the robot and plotting the readings shows both at once: we subtract the offset to recentre the cloud, then apply a rotation-scale-rotation transform to pull the ellipse back into a circle.</p>
+      <p>The gyroscope needed the opposite treatment — it is honest but noisy. We enabled the on-chip low-pass filter to reject motor vibration, fixed the sensitivity at <b>65.6&nbsp;LSB per °/s</b>, and measured the bias at rest before every run so the integration does not walk away.</p>
+      <figure>
+        <img src="media/magnetometer.webp" width="378" height="368" loading="lazy" decoding="async" alt="Scatter plot of raw and calibrated magnetometer readings, showing the raw ellipse corrected onto a circle centred at the origin" style="max-width:420px;margin:0 auto">
+        <figcaption>Raw magnetometer data against the calibrated result, recentred and de-skewed.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Sensor fusion</div>
+      <h3>A Kalman filter for yaw.</h3>
+      <p>The two sensors fail in opposite ways: the gyro is smooth but drifts, the magnetometer is drift-free but noisy and easily disturbed. A <b>1-D Kalman filter</b> fuses them into a single yaw estimate that inherits the gyro's short-term smoothness and the magnetometer's long-term truth.</p>
+      <p>Across repeated tests the fused heading held to <b>±2°</b>. That estimate is the backbone of the whole robot: it feeds the dead-reckoning integration, it sets the Ackermann turn angle, and it is the measured variable for the PID loop that holds a straight line.</p>
+      <figure>
+        <img src="media/kalman.webp" width="1104" height="574" loading="lazy" decoding="async" alt="Plot over 120 seconds comparing the true angle, the noisy gyroscope signal, the magnetometer signal and the fused Kalman estimate">
+        <figcaption>1-D Kalman fusion over a 120-second run. The fused estimate tracks truth while both raw signals wander.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Control</div>
+      <h3>PID on the heading error.</h3>
+      <p>Holding a straight line is a PID loop on yaw. We set a target heading, subtract the fused estimate, and convert the error into a differential wheel speed: a positive error means the robot needs to go right, so the left wheels get more PWM. The sign carries the direction and the magnitude carries how hard to correct.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Seeing what's ahead.</h2>
+      <p class="sub reveal">Ultrasonics say <em>something is there</em>. The camera says <em>where to go instead</em>.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Five HC-SR04 ultrasonic sensors ring the robot — three forward to detect an obstacle, two at the back so it can tell when it has cleared one and rejoin its original path. Each sensor needs a quiet interval to time its echo, which would stall the control loop, so the readings run in a <b>background thread</b> and the loop samples the latest value.</p>
+      <p>But a range reading only tells you that something is in front of you, not how wide it is or which way to go around. For that we added a camera and a segmentation model.</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Segmentation</div>
+      <h3>A fine-tuned SAM that finds the floor.</h3>
+      <p>We fine-tuned Meta's <b>Segment Anything Model</b> to mark traversable ground from the Logitech C922 feed. SAM accepts point and box prompts alongside the image, which we used deliberately: <b>dense prompt points across the bottom of the frame and sparse ones at the top</b>, biasing the model toward the ground near the robot, which is what it has to commit to in the next second — rather than the horizon, which it does not.</p>
+      <figure>
+        <img src="media/segmentation.webp" width="689" height="263" loading="lazy" decoding="async" alt="Three panels: the camera image of a path beside soil, the predicted binary mask, and the probability map, with yellow marking traversable ground">
+        <figcaption>Camera frame, predicted mask, and probability map. Yellow is ground the robot can cross.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Path choice</div>
+      <h3>From a mask to a steering command.</h3>
+      <p>The mask is split into a grid of patches, each scored traversable or not, and collapsed into one weight per row from the bottom of the image upward. The result is a short vector the controller can act on directly — for example <code>[0, 0, 0, 0, 0, 777, 50, 777]</code>.</p>
+      <ul>
+        <li><code>0</code> — carry straight on.</li>
+        <li><code>777</code> — either side is open; <code>−777</code> — neither is.</li>
+        <li>Sign gives the direction, positive right and negative left.</li>
+        <li>Magnitude gives how hard to turn.</li>
+      </ul>
+      <figure>
+        <img src="media/patches.webp" width="628" height="487" loading="lazy" decoding="async" alt="The segmentation mask divided into a grid of square patches, each classified as traversable or blocked" style="max-width:480px;margin:0 auto">
+        <figcaption>The mask reduced to patches, then to one weight per row.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Two brains.</h2>
+      <p class="sub reveal">A Pi that thinks, an Arduino that moves, and a wireless tuning loop.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>A single Raspberry Pi 4B could not do all of it — not enough pins, and not enough headroom once segmentation was in the loop. So the robot has a clean split: the <b>Pi is the brain</b>, reading sensors and running the filters and controllers, and the <b>Arduino Mega is the limbs</b>, driving three TB6612FNG H-bridges and a PCA9685 servo driver. They talk over <b>I²C</b>, Pi as master, on two wires.</p>
+      <p>Sensors are read straight off the bus with <code>smbus2</code> rather than through a vendor library, which made the timing and the failure modes predictable. The TB6612FNG replaced the L298N we had used on earlier projects — same job, far less heat and a much smaller voltage drop. Power comes from two 12&nbsp;V motorcycle batteries through XL4015 step-downs: one for the 5&nbsp;V servo rail, one sized for the impeller's ~3&nbsp;A draw.</p>
+      <figure>
+        <div class="figs">
+          <img src="media/electronics.webp" width="1400" height="1050" loading="lazy" decoding="async" alt="The wired electronics deck, with the Raspberry Pi and Arduino Mega side by side among motor drivers and cabling">
+          <img src="media/schematic.webp" width="1400" height="1694" loading="lazy" decoding="async" alt="Full wiring schematic showing the Raspberry Pi, Arduino Mega, motor drivers, servos, ultrasonic sensors, batteries and the vacuum relay">
+        </div>
+        <figcaption>The finished electronics deck, and the complete wiring and pinout schematic.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Telemetry</div>
+      <h3>MQTT to tune, WebSocket to see.</h3>
+      <p>Two protocols, chosen for two different failure tolerances. <b>MQTT</b> carries live telemetry — PWM, servo angles, the Kalman yaw — to a laptop, and carries PID constants back <em>while the robot is driving</em>. It is small, cheap and tolerant of a dropped packet, which is exactly right for tuning.</p>
+      <p><b>WebSocket</b> carries the camera frames to the segmentation server and the results back. Images are large and a lost frame is not acceptable, so that channel gets the stateful, ordered transport.</p>
+    </div>
+  </div>
+</section>
+
+<section id="field-test">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The field test.</h2>
+      <p class="sub reveal">Lawn, soil and leaf litter, on one battery charge.</p>
+      <div class="video reveal">
+        <iframe src="https://www.youtube-nocookie.com/embed/87p56Rra9FQ" title="Leave Collector Robot with dead reckoning navigation — field test" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="prose block reveal" style="margin-top:56px">
+      <p>The rover holds its line across the lawn under the PID controller, and turns on the Ackermann angle computed from the Kalman-filtered heading — both as designed. The suspension does its job: the body stays level over roots and the lip of the path.</p>
+      <p>The honest failure was torque. The GB37 gearmotors could not push the rover through the <b>tall grass</b> section; the control was fine, the drivetrain was undersized. That is the kind of result a report can only get from driving the thing outdoors.</p>
+      <p>Two things we would change next time. Replace the timed-routine navigation with a <b>SLAM map and pure pursuit</b>, so the robot follows waypoints instead of a rehearsed path. And replace the PVC structure with <b>metal pipe</b> — PVC saved money but the finished rover came out heavier than planned, which is the same problem as the torque one, seen from the other end.</p>
+    </div>
+
+    <figure class="wide-fig reveal" style="margin-top:56px">
+      <img src="media/rover-trees.webp" width="1200" height="675" loading="lazy" decoding="async" alt="The rover driving along a shaded path under trees, with leaf litter on the ground">
+      <figcaption>Working the shaded path, where the leaves actually are.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Specification.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>Chassis</dt><dd>20×20&nbsp;mm t-slot aluminium, acrylic decks, differential bar</dd></div>
+      <div class="row"><dt>Suspension</dt><dd>Rocker-bogie in 20&nbsp;mm PVC pipe with 3D-printed PLA joints and wheels</dd></div>
+      <div class="row"><dt>Drive</dt><dd>6 × GB37 12&nbsp;V 250&nbsp;rpm geared DC motors with quadrature encoders</dd></div>
+      <div class="row"><dt>Steering</dt><dd>4 × MG996R servos, Ackermann geometry, PCA9685 12-bit driver</dd></div>
+      <div class="row"><dt>Collection</dt><dd>RS775 motor, 3D-printed centrifugal impeller, sealed box with a net basket</dd></div>
+      <div class="row"><dt>Sensing</dt><dd>5 × HC-SR04 ultrasonic, 6-DOF gyro and magnetometer, Logitech C922</dd></div>
+      <div class="row"><dt>Compute</dt><dd>Raspberry Pi 4B (estimation and control) and Arduino Mega (actuation), over I²C</dd></div>
+      <div class="row"><dt>Drivers</dt><dd>3 × TB6612FNG H-bridge, relay for the impeller line</dd></div>
+      <div class="row"><dt>Power</dt><dd>2 × 12&nbsp;V motorcycle batteries, 2 × XL4015 3&nbsp;A step-down modules</dd></div>
+      <div class="row"><dt>Software</dt><dd>Python on the Pi, <code>smbus2</code> for sensors, threaded ultrasonic reads, MQTT telemetry, WebSocket vision link</dd></div>
+      <div class="row"><dt>Navigation</dt><dd>Dead reckoning from encoders and a Kalman-fused heading; PID on yaw</dd></div>
+      <div class="row"><dt>Perception</dt><dd>Fine-tuned Segment Anything Model with density-weighted point prompts</dd></div>
+    </dl>
+    <div class="prose reveal" style="margin-top:56px">
+      <p style="font-size:.95rem">Built by a team of ten for <b>Feedback Control (01416304)</b> at King Mongkut's Institute of Technology Ladkrabang, School of Engineering — Robotics and AI, Section&nbsp;2, Group&nbsp;7 — instructed by Prof.&nbsp;Dr.&nbsp;Pitikhate Sooraksa. Field-test footage by Pyae Htoo Khant.</p>
+      <p style="font-size:.95rem">The <a href="leave-collector-robot-report.pdf" target="_blank" rel="noopener" style="color:var(--blue)">full 29-page report</a> is published here with my teammates' names and student numbers removed.</p>
+    </div>
+  </div>
+</section>
+
+<section class="center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the code, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/leave_collector_robot" target="_blank" rel="noopener">github.com/ptkoo/leave_collector_robot</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>
