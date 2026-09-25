@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tuning a Meta-Learner · Paing Thet Ko</title>
+<meta name="description" content="Handing the meta learning rate of a two-task support/query learner to KerasTuner's Bayesian optimisation, and reading what fifteen trials actually say about the search.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/meta-learning-bayesopt/">
+<meta property="og:title" content="Tuning a Meta-Learner">
+<meta property="og:description" content="Fifteen trials, forty-five minutes, and a search that ran out of room.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/meta-learning-bayesopt/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/meta-learning-bayesopt/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">Tuning a Meta-Learner</h1>
+    <p class="lede">Handing one hyperparameter to a Bayesian optimiser, then reading what fifteen trials actually say — including the part where the search runs out of room.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/2DPlotterFromImage/blob/main/Meta_Learning%2C_Bayesian_Optimization.ipynb" target="_blank" rel="noopener">Notebook on GitHub</a>
+      <a href="https://colab.research.google.com/github/ptkoo/2DPlotterFromImage/blob/main/Meta_Learning%2C_Bayesian_Optimization.ipynb" target="_blank" rel="noopener">Open in Colab</a>
+    </div>
+    <div class="meta">
+      <span>Machine learning study</span>
+      <span>TensorFlow · KerasTuner</span>
+      <span>2024</span>
+    </div>
+    <div class="shot">
+      <img src="media/search.webp" width="1500" height="842" fetchpriority="high" decoding="async" alt="Scatter plot of test RMSE against meta learning rate on a log axis for fifteen trials, showing error falling as the learning rate rises and the best results clustered at the top of the searched range">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>15</b><span>trials across 5 searches</span></div>
+      <div class="stat reveal"><b>45 min</b><span>of Colab time</span></div>
+      <div class="stat reveal"><b>0.236</b><span>best test RMSE</span></div>
+      <div class="stat reveal"><b>−0.76</b><span>rate against error</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>A meta-learner has a learning rate for the inner loop and another for the outer one, and the outer rate is the awkward one: too small and the meta-update never moves the initialisation, too large and it undoes whatever the inner loop just learned. It is a bad parameter to guess and an expensive one to grid-search.</p>
+      <p>So this notebook does not guess. It wraps the whole training run in a <b>KerasTuner HyperModel</b> and lets <b>Bayesian optimisation</b> choose the meta learning rate, using held-out RMSE as the objective — then repeats the whole search five times to see how much of the answer is signal.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The task.</h2>
+      <p class="sub reveal">Small enough to run fifteen times, hard enough to be interesting.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The target is a damped oscillation, <code>y = 5·e⁻ˣ·cos(5x + 1)</code> over <code>x ∈ [0, 4]</code>. It is a good test function for this: the amplitude falls by a factor of fifty across the domain, so a network that fits the loud first swing can still be hopeless on the quiet tail, and a single RMSE number will notice.</p>
+      <p>Two tasks are drawn, each with 800 training points, and each task carries a <b>support set and a query set</b> — the split that makes a meta-learner a meta-learner. The support set is what the model adapts on; the query set is what the adaptation is judged by. A separate 200-point grid, never trained on, is the test set the tuner optimises against.</p>
+      <p>The network itself is deliberately small: two hidden layers of 32 units with ReLU, one output. Nothing about this problem needs more, and the point of the exercise is the optimiser, not the architecture.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The two loops.</h2>
+      <p class="sub reveal">Adapt fast, then nudge the starting point.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The <b>inner loop</b> is ordinary training. For each task the model is fitted to that task's support set with Adam at <code>1e-2</code> for 200 epochs — enough to drive the support loss down to around <code>0.01</code>. This is the adaptation step: whatever the weights were, they are now specialised to this task.</p>
+      <p>The <b>outer loop</b> is where the learning rate under test does its work. The query sets are shuffled, batched and zipped so the tasks step together; the loss on each task's query batch is accumulated under a single gradient tape; and one SGD step at <code>lr_meta</code> is applied to the model's parameters. The question that step answers is not "what fits this task" but "what starting point would have made adapting to these tasks easier".</p>
+      <p>This is the first-order version of the idea. The inner fit runs through Keras rather than inside the tape, so no gradient flows back through the adaptation itself — the outer step sees the adapted weights, not the path taken to reach them. Second-order MAML would differentiate through that path, at a considerable cost in memory and time.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Letting the tuner choose.</h2>
+      <p class="sub reveal">Bayesian optimisation, not a grid.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The meta learning rate is declared as a hyperparameter sampled <b>logarithmically between 10⁻⁵ and 10⁻³</b> — log-scaled because what matters is the order of magnitude, not the linear distance. KerasTuner's Bayesian optimiser fits a surrogate over the trials it has seen, then proposes the next rate by balancing "where the model looks good" against "where the model is unsure", with an exploration weight of 2.6.</p>
+      <p>Each search takes two random starting points and three trials, and the whole search is repeated five times from scratch. Every trial is a full meta-training run, which is why fifteen of them cost three quarters of an hour.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">What the search found.</h2>
+      <p class="sub reveal">Two answers, one of them about the search itself.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The best trial reached a test RMSE of <b>0.236</b> at a meta learning rate of <code>5.4×10⁻⁴</code>, and the five final models landed between 0.264 and 0.294. But the useful result is not the winner — it is the shape of the cloud.</p>
+      <figure>
+        <img src="media/search.webp" width="1500" height="842" loading="lazy" decoding="async" alt="Test RMSE against meta learning rate for all fifteen trials, coloured by which of the five searches produced them, with the best trial circled near the upper bound of the range">
+        <figcaption>Every trial, coloured by search. The dashed lines are the bounds the optimiser was given.</figcaption>
+      </figure>
+      <p>Error falls as the rate rises, with a correlation of <b>−0.76</b> between the log rate and the RMSE. The four best trials all used a rate above <code>5×10⁻⁴</code>; every single trial below <code>2×10⁻⁴</code> came in at 0.305 or worse. The winners are crowded against the right-hand wall.</p>
+      <p>That is the signature of a <b>range set too low</b>. The optimiser was not choosing an interior optimum, it was walking to the edge of the box it was given and stopping there. The honest reading of this run is not "the best meta learning rate is 5×10⁻⁴" — it is "the best rate is at least 10⁻³, and the experiment should be rerun with the ceiling lifted".</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Method</div>
+      <h3>Five short searches are not one long one.</h3>
+      <p>The second finding is about the budget. With two random initialisation points and three trials, <b>only the final trial of each search is actually guided by the surrogate</b> — the first two are random draws. And because each of the five repeats starts fresh, none of them inherits what the previous four learned.</p>
+      <p>So what looks like fifteen Bayesian trials is closer to ten random samples and five informed guesses. It is a fine way to measure <em>variance</em>, which is what repeating a search five times is for, but it never gives the Gaussian process enough history to model the landscape. One continuous fifteen-trial search would have spent the same forty-five minutes and actually converged.</p>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">The fit</div>
+      <h3>Where the error actually is.</h3>
+      <p>Plotting the five final models against the exact curve shows the error is not spread evenly. All five track the large opening swing closely and all five agree on the flat tail — but they undershoot the peak near <code>x = 1</code>, overshoot the trough after it, and drift out of phase through the middle of the domain where the oscillation is fast and the amplitude is already shrinking.</p>
+      <figure>
+        <img src="media/fit.webp" width="1500" height="1000" loading="lazy" decoding="async" alt="The exact damped cosine plotted against the five final model predictions, which follow the first large swing closely but lose amplitude and phase through the middle of the range">
+        <figcaption>The exact solution against all five final models. The disagreement is concentrated in the middle.</figcaption>
+      </figure>
+      <p>That pattern says the remaining error is a capacity and resolution problem rather than a tuning one. Sixty-four hidden units spread across two layers have to represent five full oscillations whose amplitude spans two orders of magnitude, and the outer loop gets a single SGD step per trial to place the initialisation. Lifting the search ceiling is the cheap next move; widening the network and giving the meta-update more than one step is the real one.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Setup.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>Target</dt><dd><code>y = 5·e⁻ˣ·cos(5x + 1)</code> on <code>[0, 4]</code></dd></div>
+      <div class="row"><dt>Data</dt><dd>2 tasks × 800 points, support and query sets, plus a 200-point test grid</dd></div>
+      <div class="row"><dt>Model</dt><dd>Dense 32 ReLU → Dense 32 ReLU → Dense 1</dd></div>
+      <div class="row"><dt>Inner loop</dt><dd>Adam at <code>1e-2</code>, 200 epochs, batch 32, per task on the support set</dd></div>
+      <div class="row"><dt>Outer loop</dt><dd>One SGD step at <code>lr_meta</code> on the summed query loss under a single tape</dd></div>
+      <div class="row"><dt>Search space</dt><dd><code>lr_meta</code> ∈ [10⁻⁵, 10⁻³], log-sampled</dd></div>
+      <div class="row"><dt>Optimiser</dt><dd>KerasTuner Bayesian optimisation, 2 initial points, 3 trials, β 2.6</dd></div>
+      <div class="row"><dt>Objective</dt><dd>RMSE on the held-out grid, minimised</dd></div>
+      <div class="row"><dt>Repeats</dt><dd>5 independent searches, 15 trials, 45 minutes on Colab</dd></div>
+      <div class="row"><dt>Result</dt><dd>Best RMSE 0.236 at <code>5.4×10⁻⁴</code>; optimum lies at or beyond the ceiling</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="band center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the notebook, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/2DPlotterFromImage/blob/main/Meta_Learning%2C_Bayesian_Optimization.ipynb" target="_blank" rel="noopener">The notebook</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>
