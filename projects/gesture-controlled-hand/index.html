@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gesture Controlled Robotic Hand · Paing Thet Ko</title>
+<meta name="description" content="A 3D-printed robotic hand that copies yours: MediaPipe landmarks read which fingers are up, and five servos follow over a serial link.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/gesture-controlled-hand/">
+<meta property="og:title" content="Gesture Controlled Robotic Hand">
+<meta property="og:description" content="A webcam reads your fingers; five servos copy them.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/gesture-controlled-hand/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/gesture-controlled-hand/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">Gesture Controlled Robotic Hand</h1>
+    <p class="lede">Hold up your hand and a printed one copies it — five fingers, thirty-two poses, over a serial link at 9600 baud.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/hand_gesture_robot_control" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="#hand">Watch it move</a>
+      <a href="gesture-controlled-hand-slides.pdf" target="_blank" rel="noopener">Read the slides</a>
+    </div>
+    <div class="meta">
+      <span>KMITL · AI mini project</span>
+      <span>Python, MediaPipe, Arduino</span>
+      <span>2023</span>
+    </div>
+    <div class="shot">
+      <img src="media/hand.webp" width="1400" height="1231" fetchpriority="high" decoding="async" alt="The 3D-printed robotic hand held up in front of a monitor, fingers extended, servo cables running from the wrist">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>32</b><span>poses, two to the fifth</span></div>
+      <div class="stat reveal"><b>21</b><span>landmarks per hand</span></div>
+      <div class="stat reveal"><b>2,000+</b><span>training images per class</span></div>
+      <div class="stat reveal"><b>฿2,100</b><span>total bill of materials</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>The loop is short: a webcam frame goes to MediaPipe, MediaPipe returns the skeleton of the hand, five booleans come out of that skeleton, they cross a USB cable as six characters, and an Arduino drives five servos to match. Thirty milliseconds of that, over and over.</p>
+      <p>What makes the project interesting is that it contains <b>two</b> ways of recognising a gesture — a trained image classifier and a geometric rule — and only one of them ends up moving the hand. Working out why is most of the story.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Reading the hand.</h2>
+      <p class="sub reveal">Twenty-one points, and a comparison per finger.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <div class="eyebrow">Landmarks</div>
+      <h3>Geometry, not appearance.</h3>
+      <p>MediaPipe returns <b>21 landmarks</b> per hand — four joints per finger plus the wrist — in pixel coordinates. Once you have those, deciding whether a finger is up needs no learning at all, just a comparison: the fingertip against the joint two links down the chain. If the tip sits <em>higher</em> in the image than that joint, the finger is extended.</p>
+      <p>The thumb is the exception. It folds sideways rather than down, so it is judged on <b>x</b> instead of <b>y</b> — and the direction of that test flips depending on whether the hand is a left or a right. MediaPipe's own handedness label gets inverted first, because the webcam image is mirrored and the label describes the real hand, not the one on screen.</p>
+      <p>The output is five bits, one per finger, in the order thumb to pinky. That is the entire control signal.</p>
+      <figure>
+        <img src="media/dataset.webp" width="1870" height="300" loading="lazy" decoding="async" alt="Six grayscale hand crops in a row, each overlaid with the red skeleton and green joint markers of MediaPipe's landmark model, showing zero to five fingers raised">
+        <figcaption>Landmarks drawn over the grayscale crops. Frames are desaturated first so the background carries less weight.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The model that doesn't drive the hand.</h2>
+      <p class="sub reveal">Six classes cannot address thirty-two states.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Alongside the geometry there is a real trained classifier. Around <b>2,000 images per class</b> were collected by holding poses in front of the webcam, each one cropped to the hand's bounding box with a 20-pixel margin and letterboxed onto a <code>300×300</code> white canvas so the aspect ratio survives the resize. <b>Teachable Machine</b> trained on them for <b>250 epochs</b> at a batch size of 16, and the result was exported as a Keras model.</p>
+      <figure>
+        <div class="figs">
+          <img src="media/gestures.webp" width="1500" height="681" loading="lazy" decoding="async" alt="A grid of nine photographed hand poses against a dark background, from one finger raised to a closed fist">
+          <img src="media/training.webp" width="1500" height="754" loading="lazy" decoding="async" alt="The Teachable Machine interface showing two classes with around two thousand image samples each and training settings of 250 epochs, batch size 16, learning rate 0.001">
+        </div>
+        <figcaption>The captured poses, and the training run in Teachable Machine.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">The catch</div>
+      <h3>Counting fingers is not the same as naming them.</h3>
+      <p>The model has six labels: <code>0</code> through <code>5</code>. It answers <em>how many</em> fingers are up. But a hand with five independent servos has <b>2⁵ = 32</b> reachable poses, and "three fingers up" describes ten of them. The classifier simply cannot express the difference between a peace sign and a pinky-and-thumb.</p>
+      <p>So in the running program the classifier's prediction is drawn on screen with its confidence, and the <b>landmark rule is what actually reaches the servos</b>. The trained model became the visible read-out; the geometry became the controller. It is a nice illustration that the learned component is not automatically the right tool — here the hand-written rule is both more expressive and cheaper.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Talking to the microcontroller.</h2>
+      <p class="sub reveal">Six characters, framed so a half-packet can never move a finger.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The five bits go down a USB serial line at <b>9600 baud</b>. The obvious way to send them — write five characters and hope — fails the moment a read lands mid-packet, because the Arduino has no way to know which finger the first digit belongs to.</p>
+      <p>So every packet opens with a <code>$</code>. The sketch reads one character at a time, ignores everything until it sees that marker, then buffers a fixed <b>six characters</b> before acting. Framing like this means a packet split across two reads, or a byte lost to noise, costs one dropped update rather than a hand that closes the wrong fingers. On the Python side, a failed write drops the serial object and opens a new one, so unplugging the cable mid-run reconnects instead of crashing.</p>
+      <figure>
+        <img src="media/protocol.webp" width="1200" height="989" loading="lazy" decoding="async" alt="Diagram of the serial packet: a dollar sign start marker followed by five binary digits, and below it the five fingers with their pins and servo angle ranges, marking which position each bit commands" style="max-width:520px;margin:0 auto">
+        <figcaption>The packet, and where each bit puts its servo. Every finger has its own calibrated pair of angles.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Servos</div>
+      <h3>Five fingers, five sets of limits.</h3>
+      <p>On the Arduino each finger is an object holding a servo and its two end stops, with a single <code>move()</code> that takes a bit and writes one angle or the other. The limits are not shared, because the linkages are not identical: thumb, index and middle swing <code>45°</code> to <code>160°</code>, the ring finger only manages <code>15°</code> to <code>100°</code>, and the pinky runs <code>10°</code> to <code>160°</code>. Those numbers are tendon travel measured on the printed parts, not a design constant.</p>
+      <figure>
+        <img src="media/circuit.webp" width="648" height="385" loading="lazy" decoding="async" alt="Wiring diagram showing a computer sending a digit string to an Arduino Uno, which drives four servo motors" style="max-width:520px;margin:0 auto">
+        <figcaption>The link, end to end: five bits from the laptop, five servos on the far side.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="hand">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The hand.</h2>
+      <p class="sub reveal">Printed in PLA, tendon-driven, five MG996R servos.</p>
+      <div class="video reveal">
+        <iframe src="https://www.youtube-nocookie.com/embed/c-sOCDFXNlY" title="Gesture controlled robotic hand copying hand poses from a webcam" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+    <div class="prose block reveal" style="margin-top:56px">
+      <p>The hand is printed in PLA and went through a prototype design before the final one. Each finger is pulled closed by a line running to a servo in the forearm and returns when the servo releases — the same tendon arrangement most printed hands use, and the same place most of them lose accuracy.</p>
+      <figure>
+        <img src="media/results.webp" width="640" height="360" loading="lazy" decoding="async" alt="The workspace during a test: a hand raised in front of the webcam on the left, the printed hand and its wiring on the desk, and the code running on the monitor behind">
+        <figcaption>A test run — the hand on the desk following the one in front of the camera.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">What broke.</h2>
+      <p class="sub reveal">Three failures worth writing down.</p>
+    </div>
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p><b>Current.</b> Five MG996R servos stalling at once draw far more than a hobby supply or the driver board wants to give. Poses that moved several fingers together browned out the rail — the classic failure of counting servos by signal channels rather than by amps.</p>
+      <p><b>Serial drops.</b> The link disconnected during testing, which is what pushed the reconnect logic and the framing marker into the code rather than leaving both as an afterthought.</p>
+      <p><b>Friction.</b> Printed joints running on printed pins bind, and the tendons stretch. The result is a hand that reaches its two commanded angles but not smoothly, and the fix is mechanical rather than anything that can be done in software.</p>
+      <p>There was a perception failure too: <b>two-finger poses</b> were recognised least reliably. With the thumb judged on a different axis from the other four, the poses that mix an extended thumb with one extended finger sit closest to the decision boundary.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Specification.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>Perception</dt><dd>MediaPipe Hands, 21 landmarks, up to two hands, 0.5 detection and tracking confidence</dd></div>
+      <div class="row"><dt>Gesture rule</dt><dd>Fingertip against the joint two links down; thumb judged on x with handedness taken into account</dd></div>
+      <div class="row"><dt>Classifier</dt><dd>Teachable Machine, 6 classes, 250 epochs, batch 16, ~2,000 images per class, exported to Keras</dd></div>
+      <div class="row"><dt>Preprocessing</dt><dd>Grayscale, bounding-box crop with 20&nbsp;px margin, letterboxed to <code>300×300</code></dd></div>
+      <div class="row"><dt>Link</dt><dd>pyserial at 9600 baud; <code>$</code>-framed six-character packets, auto-reconnect on write failure</dd></div>
+      <div class="row"><dt>Controller</dt><dd>Arduino Uno, five servos on D4–D8, one finger object per servo with its own end stops</dd></div>
+      <div class="row"><dt>Travel</dt><dd>Thumb, index, middle 45–160°; ring 15–100°; pinky 10–160°</dd></div>
+      <div class="row"><dt>Actuators</dt><dd>5 × MG996R with a PCA9685 driver board, servo tester, 9&nbsp;V DC and 6 × AA supply</dd></div>
+      <div class="row"><dt>Structure</dt><dd>3D-printed PLA, tendon-driven fingers, prototype and final revisions</dd></div>
+      <div class="row"><dt>Cost</dt><dd>฿2,100 for the whole build</dd></div>
+    </dl>
+    <div class="prose reveal" style="margin-top:56px">
+      <p style="font-size:.95rem">Built by a team of five as an AI mini project at King Mongkut's Institute of Technology Ladkrabang. The <a href="gesture-controlled-hand-slides.pdf" target="_blank" rel="noopener" style="color:var(--blue)">project slides</a> are published here with my teammates' names and student numbers removed.</p>
+    </div>
+  </div>
+</section>
+
+<section class="center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the code, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/hand_gesture_robot_control" target="_blank" rel="noopener">github.com/ptkoo/hand_gesture_robot_control</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>
