@@ -12,5 +12,6 @@ Personal site of Paing Thet Ko, robotics engineer. Hand-written HTML/CSS/JS, no 
 2. Put its images in `projects/<slug>/media/`.
 3. Add a `.pcard` to the `#projects` grid in the root `index.html`.
 
-The first card carries `class="pcard wide"` for the image-beside-text layout; later cards can drop
-`wide` and the grid will place them two-up.
+Cards carry `class="pcard wide"` for the image-beside-text layout; add `flip` on every other one
+(`pcard wide flip`) so the image side alternates down the page. Drop `wide` entirely and the grid
+will place cards two-up instead.

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portrait Drawing Robot · Paing Thet Ko</title>
+<meta name="description" content="A pen plotter that photographs you and draws your portrait: face detection, CLAHE, Canny edges, and a circular-sampling vectoriser that turns an edge bitmap into ordered G-code strokes.">
+<link rel="canonical" href="https://ptkoo.github.io/projects/portrait-drawing-robot/">
+<meta property="og:title" content="Portrait Drawing Robot">
+<meta property="og:description" content="Turning a webcam frame into pen strokes a plotter can follow.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ptkoo.github.io/projects/portrait-drawing-robot/">
+<meta property="og:image" content="https://ptkoo.github.io/projects/portrait-drawing-robot/media/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='8'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='16'%20cy='4.5'%20r='1.6'%20fill='%23fff'/%3E%3Crect%20x='15.2'%20y='5.5'%20width='1.6'%20height='3.5'%20fill='%23fff'/%3E%3Crect%20x='7'%20y='9'%20width='18'%20height='15'%20rx='4.5'%20fill='%23fff'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Crect%20x='25.9'%20y='13.5'%20width='2.6'%20height='6'%20rx='1.3'%20fill='%23fff'/%3E%3Ccircle%20cx='12.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Ccircle%20cx='19.5'%20cy='15.5'%20r='2.1'%20fill='%231d1d1f'/%3E%3Crect%20x='12'%20y='19.6'%20width='8'%20height='1.7'%20rx='.85'%20fill='%231d1d1f'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../../">Paing Thet Ko</a>
+    <ul>
+      <li><a href="../../#featured">Featured</a></li>
+      <li><a href="../../#experience">Experience</a></li>
+      <li><a href="../../#projects">Projects</a></li>
+      <li><a href="../../#skills">Skills</a></li>
+      <li><a href="../../#education">Education</a></li>
+      <li><a href="../../#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero center" id="top">
+  <div class="wrap">
+    <a class="crumb" href="../../#projects">Projects</a>
+    <h1 class="h-title">Portrait Drawing Robot</h1>
+    <p class="lede">Look at the camera and a pen plotter draws you — a webcam frame turned into ordered strokes a machine can follow.</p>
+    <div class="links">
+      <a href="https://github.com/ptkoo/2DPlotterFromImage" target="_blank" rel="noopener">Source on GitHub</a>
+      <a href="#machine">Watch it draw</a>
+      <a href="https://colab.research.google.com/github/ptkoo/2DPlotterFromImage/blob/main/2DPlotter.ipynb" target="_blank" rel="noopener">Open in Colab</a>
+    </div>
+    <div class="meta">
+      <span>Computer vision · path planning</span>
+      <span>Python, OpenCV, G-code</span>
+      <span>2024</span>
+    </div>
+    <div class="shot">
+      <img src="media/portrait.webp" width="1300" height="1300" fetchpriority="high" decoding="async" alt="The finished line drawing: a portrait reduced to thin black contour strokes on white, showing a face with glasses">
+    </div>
+    <div class="after"></div>
+  </div>
+</header>
+
+<section class="band">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat reveal"><b>4</b><span>edge operators compared</span></div>
+      <div class="stat reveal"><b>11</b><span>sampling radii, 0 to 10</span></div>
+      <div class="stat reveal"><b>0.5 mm</b><span>of paper per pixel</span></div>
+      <div class="stat reveal"><b>150.5 mm</b><span>square drawing</span></div>
+    </div>
+    <div class="prose reveal" style="margin-top:64px">
+      <p>A plotter cannot be handed a photograph. It follows a list of moves: go here with the pen up, go there with the pen down. So the whole project is one long reduction — from a 24-bit webcam frame, to a grayscale face, to a one-pixel-wide edge map, to a <b>graph of strokes</b>, to G-code.</p>
+      <p>The first half is ordinary computer vision and the notebook works through it operator by operator, comparing the options rather than assuming one. The second half is the interesting half: an edge image is a <em>set of lit pixels</em> with no notion of a line, a corner or a branch, and the plotter needs all three.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Finding the face.</h2>
+      <p class="sub reveal">Crop to what matters, then fix the lighting.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <div class="eyebrow">Detection</div>
+      <h3>A Haar cascade, then a generous crop.</h3>
+      <p>A photo from a laptop webcam is mostly room. The classic <b>Viola–Jones Haar cascade</b> that ships with OpenCV finds the face — <code>scaleFactor 1.2</code>, <code>minNeighbors 5</code> — and the box it returns is then grown by <b>1.3×</b> about its own centre before cropping.</p>
+      <p>That enlargement matters more than it looks. A tight detection box cuts the hairline, the chin and the ears, and those outlines are most of what makes a line drawing recognisable as a particular person.</p>
+      <figure>
+        <img src="media/detect.webp" width="500" height="480" loading="lazy" decoding="async" alt="A grayscale webcam photo with a square detection box drawn around the subject's face">
+        <figcaption>The detection box, before it is enlarged and cropped.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Contrast</div>
+      <h3>CLAHE beats a global stretch.</h3>
+      <p>Edge detection is only as good as the local contrast it is given, and a face lit from one side has plenty of tone in the bright half and almost none in the shadow. Stretching the histogram <em>globally</em> fixes the average and leaves the shadow flat.</p>
+      <p><b>CLAHE</b> — contrast-limited adaptive histogram equalisation — instead equalises each tile of an <code>8×8</code> grid on its own, clipping any histogram bin that exceeds a <code>clipLimit</code> of 5 and redistributing the excess so a tile of near-uniform skin does not get amplified into noise. The notebook plots the histogram and CDF for both and keeps CLAHE.</p>
+      <figure>
+        <div class="figs">
+          <img src="media/equalise.webp" width="580" height="435" loading="lazy" decoding="async" alt="Globally equalised face with its histogram and cumulative distribution plotted below">
+          <img src="media/clahe.webp" width="580" height="435" loading="lazy" decoding="async" alt="CLAHE-processed face with its histogram and cumulative distribution plotted below">
+        </div>
+        <figcaption>Global equalisation, and CLAHE. Same face, very different shadow detail.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Finding the edges.</h2>
+      <p class="sub reveal">Four operators, one of which survives contact with a pen.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Before any gradient is taken the image gets a <b>Gaussian blur</b>, <code>ksize 15</code> at <code>σ = 2</code>, built the explicit way as a 1-D kernel and its transpose. Derivatives amplify noise, and skin texture is noise as far as an edge detector is concerned.</p>
+      <p>Then the comparison. <b>Laplacian</b> with a four-neighbour kernel is a second derivative and picks up every speck. <b>Prewitt</b> and <b>Sobel</b> return gradient <em>magnitude</em>, so an edge comes out as a wide ridge that fades at the sides — a plotter would draw it as a thick smear. <b>Canny</b> is the only one of the four that does non-maximum suppression and hysteresis, and so the only one that returns something already one pixel wide.</p>
+      <figure>
+        <img src="media/operators.webp" width="1440" height="1520" loading="lazy" decoding="async" alt="Four-panel comparison of Laplacian, Prewitt, Sobel and Canny edge detection on the same face" style="max-width:560px;margin:0 auto">
+        <figcaption>The same blurred frame through all four operators. Only Canny gives thin lines.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Thresholding</div>
+      <h3>Each operator gets its own cut.</h3>
+      <p>Gradient magnitudes are not comparable across operators, so each gets its histogram plotted and its own inverse binary threshold — <code>3</code> for the Laplacian, <code>2</code> for Canny, <code>20</code> for Sobel, <code>60</code> for Prewitt. Canny's output goes forward, through one more gradient pass and a final cut at <code>35</code>, and comes out as a boolean array: true where there is a line, false everywhere else.</p>
+      <figure>
+        <img src="media/edges.webp" width="872" height="836" loading="lazy" decoding="async" alt="The final binary edge map of the face: white contour lines on black" style="max-width:480px;margin:0 auto">
+        <figcaption>The binary edge map. This is everything the vectoriser gets to work with.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">From pixels to strokes.</h2>
+      <p class="sub reveal">Growing a ring until it tells you where the line goes.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>Here is the actual problem. That boolean array says <em>this pixel is lit</em>. It does not say which pixels belong to the same line, which way the line runs, or where one line forks into two. A pen needs all of that.</p>
+      <p>The trick is to stop thinking in pixels and start thinking in <b>rings</b>. Around a given edge pixel, sample a discrete circle of radius <code>r</code> — the integer coordinates of every such circle for <code>r = 0…10</code> are precomputed once in <code>constants.py</code>, in order, so walking a ring is just walking a list. Read the edge map at each ring position and you get a loop of true/false.</p>
+      <p>Run-length encode that loop, wrapping across the seam, and you get <b>arcs</b>. Now the count means something: two arcs is a line passing through, and <b>four or more arcs is a junction</b>. The midpoint of each true arc is the direction a stroke continues in. A T-junction announces itself as three separate true arcs, with no special case for corners, forks or crossings anywhere in the code.</p>
+      <figure>
+        <img src="media/sampling.webp" width="1000" height="968" loading="lazy" decoding="async" alt="Diagram of a ring of radius 3 sampled around an edge pixel at a T-junction, with the three edge arcs highlighted, and the same ring unrolled into a strip showing six arcs" style="max-width:480px;margin:0 auto">
+        <figcaption>A real junction from this image. Six arcs around the ring, three of them lit, so three branches.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">Choosing a radius</div>
+      <h3>Grow until the answer stops changing.</h3>
+      <p>One radius does not suit every place in the picture. Too small and a ring sits entirely inside a thick blob; too large and it reaches across a gap into a different line. So the radius grows from zero and the arc count is watched:</p>
+      <ul>
+        <li>Keep the radius that produced the most arcs so far.</li>
+        <li>Stop once there are at least four arcs and two consecutive rings do not improve on it — the junction is resolved.</li>
+        <li>Stop early if only two arcs remain and the lit one is under a quarter of the circumference, which means a thin line running straight through.</li>
+        <li>Stop if a ring comes back entirely dark — an isolated speck with nothing to connect to.</li>
+      </ul>
+      <p>With a radius chosen, a depth-first search claims every connected lit pixel within it for the current node, links up to any neighbouring node already claimed, and then recurses outward along each branch. Pixels get consumed exactly once, and what falls out is a <b>graph</b>: nodes on the skeleton of the drawing, edges where the pen should travel between them.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">Ordering the pen.</h2>
+      <p class="sub reveal">A graph does not tell you where to start. Euler does.</p>
+    </div>
+
+    <div class="prose block first reveal" style="margin-top:56px">
+      <p>The graph says what to draw but not in what order, and order is what costs time on a plotter. Every pen-up hop is wasted motion.</p>
+      <p>The emitter leans on a classical result. In any graph, a trail that uses each edge once can only start and finish at a vertex of <b>odd degree</b> — so nodes with an odd number of connections, plus isolated ones, are exactly the places a stroke has to begin or end. Those get drawn first. After each stroke the next start is chosen <b>greedily by distance</b> from where the pen just stopped, which is a cheap approximation to a travelling-salesman ordering and takes most of the slack out of the travel.</p>
+      <p>Whatever still has unused connections afterwards must have even degree everywhere, which means it lies on a <b>cycle</b> — and a cycle can be entered anywhere, because it is guaranteed to come back. Those get walked second.</p>
+      <figure>
+        <img src="media/toolpath.webp" width="1500" height="787" loading="lazy" decoding="async" alt="Two panels: the pen-down strokes alone forming the portrait, and the same strokes with thin blue pen-up travel lines drawn between them">
+        <figcaption>The emitted tool path. Left, what the pen draws; right, the same run with pen-up travel in blue.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prose block reveal">
+      <div class="eyebrow">G-code</div>
+      <h3>Two axes, half a millimetre a pixel.</h3>
+      <p>Nodes become coordinates with a swap and a halving — the image column becomes <code>X</code>, the image row becomes a negative <code>Y</code>, both scaled by one half. That scale is the whole calibration: <b>one pixel of the edge map is half a millimetre of paper</b>, so a 301-pixel crop lands as a 150.5&nbsp;mm square, which is what the machine's work area is set to.</p>
+      <p>Moves come out as <code>G0</code> for a rapid with the pen clear and <code>G1</code> for a cut. A final pass walks the file and injects the pen commands, <code>M5</code> and <code>M3 S30</code>, at each transition between the two — the servo that lifts and drops the pen is driven off the spindle output, which is the usual trick on a hobby GRBL controller.</p>
+    </div>
+  </div>
+</section>
+
+<section id="machine">
+  <div class="wrap">
+    <div class="center">
+      <h2 class="h-l reveal">The machine.</h2>
+      <p class="sub reveal">Two axes, one servo, and a file full of moves.</p>
+      <div class="video reveal">
+        <iframe src="https://www.youtube-nocookie.com/embed/NFRlIbPj_N0" title="Portrait Drawing Robot drawing a portrait from generated G-code" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+    <div class="prose block reveal" style="margin-top:56px">
+      <p>The finished <code>.nc</code> file goes to a GRBL sender, which previews the whole path over a 150.5&nbsp;mm grid before the first move — and then the plotter works through it stroke by stroke, lifting between them.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="center"><h2 class="h-l reveal">Pipeline.</h2></div>
+    <dl class="spec reveal">
+      <div class="row"><dt>Capture</dt><dd>Webcam frame in Colab, converted to grayscale</dd></div>
+      <div class="row"><dt>Face detection</dt><dd>OpenCV Haar cascade, <code>scaleFactor 1.2</code>, <code>minNeighbors 5</code>, box enlarged 1.3×</dd></div>
+      <div class="row"><dt>Contrast</dt><dd>CLAHE, <code>clipLimit 5</code>, <code>8×8</code> tiles — compared against global equalisation</dd></div>
+      <div class="row"><dt>Denoise</dt><dd>Separable Gaussian, <code>ksize 15</code>, <code>σ 2</code></dd></div>
+      <div class="row"><dt>Edges</dt><dd>Laplacian, Prewitt, Sobel and Canny compared; Canny <code>(1, 100)</code> carried forward</dd></div>
+      <div class="row"><dt>Binarisation</dt><dd>Per-operator inverse threshold, then a final cut at 35 to a boolean map</dd></div>
+      <div class="row"><dt>Vectorising</dt><dd>Concentric integer circles <code>r = 0…10</code>, run-length arcs, DFS pixel ownership, stroke graph</dd></div>
+      <div class="row"><dt>Ordering</dt><dd>Odd-degree endpoints first with greedy nearest-neighbour hops, cycles second</dd></div>
+      <div class="row"><dt>Output</dt><dd><code>G0</code>/<code>G1</code> moves at 0.5&nbsp;mm per pixel, with <code>M5</code> / <code>M3 S30</code> pen commands injected</dd></div>
+      <div class="row"><dt>Machine</dt><dd>GRBL two-axis plotter, servo pen lift, 150.5&nbsp;mm square work area</dd></div>
+      <div class="row"><dt>Stack</dt><dd>Python, OpenCV, NumPy, SciPy, Matplotlib</dd></div>
+    </dl>
+    <div class="prose reveal" style="margin-top:56px">
+      <p style="font-size:.95rem">The tool-path figures on this page were rendered by running the repository's own vectoriser and G-code emitter over the notebook's edge map — the notebook computes the path but never plots it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="center contact">
+  <div class="wrap">
+    <h2 class="h-l reveal">Read the code, or get in touch.</h2>
+    <div class="links reveal">
+      <a href="https://github.com/ptkoo/2DPlotterFromImage" target="_blank" rel="noopener">github.com/ptkoo/2DPlotterFromImage</a>
+      <a href="mailto:paingthetko2000@gmail.com">paingthetko2000@gmail.com</a>
+      <a href="../../#projects">All projects</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © <span id="year"></span> Paing Thet Ko. All rights reserved.</span>
+    <span>Bangkok, Thailand</span>
+  </div>
+</footer>
+
+<script src="../../main.js" defer></script>
+</body>
+</html>

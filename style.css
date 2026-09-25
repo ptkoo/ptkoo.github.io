@@ -118,6 +118,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
   .pcard.wide .pshot{width:52%}
   .pcard.wide .pshot img{height:100%;aspect-ratio:auto}
   .pcard.wide .pbody{padding:38px 40px}
+  .pcard.wide.flip{flex-direction:row-reverse}
 }
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:5px}
 .chips span{font-family:var(--mono);font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:100px;padding:4px 10px;background:var(--bg)}
